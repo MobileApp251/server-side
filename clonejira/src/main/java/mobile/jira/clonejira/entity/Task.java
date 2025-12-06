@@ -16,10 +16,9 @@ import mobile.jira.clonejira.enums.TaskStatus;
 @Data
 @EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Task {
-
-    public Task(){};
     
     @EmbeddedId
     private ProjectTaskId id;

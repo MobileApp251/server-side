@@ -8,9 +8,9 @@ spring:
 
   # --- Cấu hình Database (JPA & MySQL) ---
   datasource:
-    url: jdbc:mysql://localhost:3306/jira
+    url: jdbc:mysql://interchange.proxy.rlwy.net:23604/railway
     username: root
-    password: "123456" # Nên để password trong ngoặc kép nếu có ký tự đặc biệt
+    password: "iXXMcgLnoazRijbSoSAaSOhcUxkqiHyL" # Nên để password trong ngoặc kép nếu có ký tự đặc biệt
     driver-class-name: com.mysql.cj.jdbc.Driver
   
   jpa:

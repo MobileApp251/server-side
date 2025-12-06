@@ -9,6 +9,7 @@ import mobile.jira.clonejira.entity.Task;
 import mobile.jira.clonejira.entity.key.ProjectTaskId;
 import mobile.jira.clonejira.repository.TaskRepository;
 import mobile.jira.clonejira.mapper.*;
+import mobile.jira.clonejira.dto.TaskCreateDTO;
 import mobile.jira.clonejira.dto.TaskDTO;
 
 @Service
@@ -18,8 +19,15 @@ public class TaskService {
 
     private final TaskMapper taskMapper;
 
-    public TaskDTO createTask(TaskDTO taskDTO) {
-        Task task = taskMapper.toEntity(taskDTO);
+    public TaskDTO createTask(String project_id, TaskCreateDTO taskDTO) {
+        TaskDTO tdto = new TaskDTO();
+        Integer task_id = taskRepository.getMaxTaskIdx(project_id);
+        tdto.setProj_id(project_id);
+        tdto.setTask_id(task_id + 1);
+        tdto.setContent(taskDTO.getContent());
+        tdto.setTask_name(tdto.getTask_name());
+        tdto.setStatus(taskDTO.getStatus());
+        Task task = taskMapper.toEntity(tdto);
         Task savedTask = taskRepository.save(task);
         return taskMapper.toDTO(savedTask);
     }
@@ -32,7 +40,7 @@ public class TaskService {
                 .toList();
     }
 
-    public TaskDTO getTaskById(String project_id, Long task_id){
+    public TaskDTO getTaskById(String project_id, Integer task_id){
         ProjectTaskId id = new ProjectTaskId(project_id, task_id);
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found"));

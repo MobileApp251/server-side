@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProjectTaskId {
     private String proj_id;
-    private Long task_id;
+    private Integer task_id;
 }

@@ -8,7 +8,7 @@ import mobile.jira.clonejira.enums.*;
 
 @Data
 public class TaskDTO {
-    private Long task_id;
+    private Integer task_id;
     private String task_name;
     private String proj_id;
     private String content;
