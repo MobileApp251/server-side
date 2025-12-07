@@ -6,7 +6,7 @@ public enum TaskStatus {
     OPEN("open"),
     PROGRESS("progress"),
     DONE("done"),
-    REOPEN("reopen"),
+    REOPEN("reopen"), 
     CLOSE("close");
     
     private final String value;
