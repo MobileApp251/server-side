@@ -25,7 +25,7 @@ public class TaskService {
         tdto.setProj_id(project_id);
         tdto.setTask_id(task_id + 1);
         tdto.setContent(taskDTO.getContent());
-        tdto.setTask_name(tdto.getTask_name());
+        tdto.setTask_name(taskDTO.getTask_name());
         tdto.setStatus(taskDTO.getStatus());
         Task task = taskMapper.toEntity(tdto);
         Task savedTask = taskRepository.save(task);

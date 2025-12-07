@@ -1,5 +1,7 @@
 package mobile.jira.clonejira.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,5 +23,10 @@ public class TaskController {
         @RequestBody TaskCreateDTO taskDTO
     ){
         return ResponseEntity.ok(taskService.createTask(project_id, taskDTO));
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<TaskDTO>> getAllTasks(){
+        return ResponseEntity.ok(taskService.getAllTasks());
     }
 }
