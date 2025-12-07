@@ -31,3 +31,5 @@ build/
 
 ### VS Code ###
 .vscode/
+# Loại trừ file SQL database
+jira-mobile.sql
