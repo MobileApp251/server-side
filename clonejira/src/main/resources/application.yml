@@ -20,33 +20,30 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-  
-  springdoc:
-    swagger-ui:
-      path: /swagger-ui.html
+
+# springdoc is not a standard property under spring. Move to top-level if needed by SpringDoc
+#springdoc:
+#  swagger-ui:
+#    path: /swagger-ui.html
 
   jackson:
       mapper:
         accept-case-insensitive-enums: true
 
-  # --- Cấu hình API Gateway ---
-  cloud:
-    gateway:
-      routes:
-        # Route 1: Chuyển hướng đến chính service Spring này (hoặc service Spring khác)
-        # Lưu ý: Nếu Gateway nằm chung code với service backend này, bạn không cần route này 
-        # trừ khi bạn muốn gọi vòng lại. Nếu Gateway là app riêng, hãy điền IP của service Spring.
-        - id: spring-backend
-          uri: http://localhost:8080 # Đổi thành port/ip thật của service Spring đích
-          predicates:
-            - Host=**:8080
-          
-        # Route 2: Chuyển hướng đến Service PHP
-        - id: php-service
-          uri: http://localhost:8081 # Đổi thành port/ip thật của service PHP
-          predicates:
-            - Host=**:8081
-          filters:
-            - StripPrefix=1 # Bỏ /api/v1/php trước khi gọi xuống PHP
+# cloud is not a standard property under spring. Move to top-level if needed by Spring Cloud Gateway
+#cloud:
+  # gateway:
+  #   routes:
+  #     - id: spring-backend
+  #       uri: http://localhost:8080 # Đổi thành port/ip thật của service Spring đích
+  #       predicates:
+  #         - Host=**:8080
+  #     # Route 2: Chuyển hướng đến Service PHP
+  #     - id: php-service
+  #       uri: http://localhost:8081 # Đổi thành port/ip thật của service PHP
+  #       predicates:
+  #         - Host=**:8081
+  #       filters:
+  #         - StripPrefix=1 # Bỏ /api/v1/php trước khi gọi xuống PHP
 server:
   port: 8081
