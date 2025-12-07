@@ -20,7 +20,17 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 // **TẠM TẮT AUTHENTICATION BẰNG CÁCH NÀY**
                 // Cho phép TẤT CẢ các request truy cập mà KHÔNG cần xác thực
-                .anyRequest().permitAll()
+                
+
+                .requestMatchers(
+                    "/api/tasks",
+                    "/api/tasks/**",
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
+
+                .anyRequest().authenticated()
             )
             
             // Tắt form login mặc định nếu không cần

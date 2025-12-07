@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import mobile.jira.clonejira.entity.key.ProjectTaskId;
 import mobile.jira.clonejira.enums.TaskStatus;
+import mobile.jira.clonejira.enums.converter.TaskStatusConverter;
 
 @Entity
 @Table(name="tasks")
@@ -37,7 +38,7 @@ public class Task {
     @Column(nullable = false)
     private Instant updateAt;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TaskStatusConverter.class)
     @Column(nullable = false)
     private TaskStatus status;
 }
