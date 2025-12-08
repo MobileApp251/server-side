@@ -40,6 +40,14 @@ public class TaskService {
                 .toList();
     }
 
+    public List<TaskDTO> getTasksByProject(String project_id){
+        List<Task> tasks = taskRepository.findTaskByProjId(project_id);
+
+        return tasks.stream()
+        .map(taskMapper::toDTO)
+        .toList();
+    }
+
     public TaskDTO getTaskById(String project_id, Integer task_id){
         ProjectTaskId id = new ProjectTaskId(project_id, task_id);
         Task task = taskRepository.findById(id)

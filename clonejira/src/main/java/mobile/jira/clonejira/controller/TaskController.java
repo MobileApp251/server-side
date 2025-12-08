@@ -29,4 +29,11 @@ public class TaskController {
     public ResponseEntity<List<TaskDTO>> getAllTasks(){
         return ResponseEntity.ok(taskService.getAllTasks());
     }
+
+    @GetMapping("/{project_id}")
+    public ResponseEntity<List<TaskDTO>> getTasksByProject(
+        @PathVariable("project_id") String project_id
+    ){
+        return ResponseEntity.ok(taskService.getTasksByProject(project_id));
+    }
 }

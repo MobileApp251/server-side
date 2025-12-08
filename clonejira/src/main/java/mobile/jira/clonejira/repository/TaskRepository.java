@@ -4,6 +4,9 @@ import mobile.jira.clonejira.entity.Task;
 import mobile.jira.clonejira.entity.key.ProjectTaskId;
 
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,4 +17,7 @@ public interface TaskRepository extends JpaRepository<Task, ProjectTaskId> {
 
     @Query("SELECT COALESCE(MAX(t.id.task_id), 0) FROM Task t WHERE t.id.proj_id = :project_id")
     Integer getMaxTaskIdx(@Param("project_id") String project_id);
+
+    @Query("SELECT t FROM Task t WHERE t.id.proj_id = :project_id")
+    List<Task> findTaskByProjId(@Param("project_id") String project_id);
 }
