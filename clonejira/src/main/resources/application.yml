@@ -1,6 +1,17 @@
 spring:
   application:
     name: clonejira
+
+  security:
+      oauth2:
+        client:
+          registration:
+            google:
+              client-id: "838025556290-csiqqqd721dhpupsv5pnf0aro07sfv6e.apps.googleusercontent.com"
+              client-secret: "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"
+              scope:
+                - email
+                - profile
   
   docker:
     compose:
@@ -14,8 +25,6 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   
   jpa:
-    hibernate:
-      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -45,5 +54,10 @@ spring:
   #         - Host=**:8081
   #       filters:
   #         - StripPrefix=1 # Bỏ /api/v1/php trước khi gọi xuống PHP
+
+jwt:
+  jwtSecret: "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437"
+  jwtExpiration: 86400000
+
 server:
   port: 8081

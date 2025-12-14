@@ -2,13 +2,26 @@ package mobile.jira.clonejira.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Bean
+    public AuthenticationManager authenticationManager (AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -23,6 +36,9 @@ public class SecurityConfig {
                 
 
                 .requestMatchers(
+                    "/",
+                    "/auth/**",
+                    "/auth/login",
                     "/api/tasks",
                     "/api/tasks/**",
                     "/v3/api-docs/**",
@@ -32,12 +48,8 @@ public class SecurityConfig {
 
                 .anyRequest().authenticated()
             )
-            
-            // Tắt form login mặc định nếu không cần
-            .formLogin(form -> form.disable())
-            
-            // Tắt http basic mặc định nếu không cần
-            .httpBasic(httpBasic -> httpBasic.disable());
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .oauth2Login(Customizer.withDefaults());
             
         return http.build();
     }
