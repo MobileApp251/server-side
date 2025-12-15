@@ -84,7 +84,7 @@ public class ProjectController {
         }
     }
 
-    @GetMapping(":project_id")
+    @GetMapping("/{project_id}")
     public ResponseEntity<?> getProjectById(
         @PathVariable("project_id") String project_id
     ) {

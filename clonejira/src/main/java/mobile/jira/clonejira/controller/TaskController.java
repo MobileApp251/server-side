@@ -27,7 +27,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.createTask(project_id, taskDTO));
     }
 
-    @PostMapping(":project_id/:task_id")
+    @PostMapping("/{project_id}/{task_id}")
     public ResponseEntity<?> assignTask(
         HttpServletRequest request,
         @PathVariable("project_id") String project_id,
