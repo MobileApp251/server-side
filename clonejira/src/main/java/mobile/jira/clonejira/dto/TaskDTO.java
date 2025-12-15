@@ -14,5 +14,7 @@ public class TaskDTO {
     private String content;
     private Instant createAt;
     private Instant updateAt;
+    private Instant startAt;
+    private Instant endAt;
     private TaskStatus status;
 }

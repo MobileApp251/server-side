@@ -13,11 +13,11 @@ import mobile.jira.clonejira.enums.TaskStatus;
 import mobile.jira.clonejira.enums.converter.TaskStatusConverter;
 
 @Entity
-@Table(name="tasks")
 @Data
+@Table(name = "tasks")
 @EntityListeners(AuditingEntityListener.class)
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Task {
     
@@ -31,12 +31,18 @@ public class Task {
     private String content;
 
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(name = "createAt", updatable = false)
     private Instant createAt;
 
     @LastModifiedDate
-    @Column(nullable = false)
+    @Column(name = "updateAt")
     private Instant updateAt;
+
+    @Column(name = "startAt")
+    private Instant startAt;
+
+    @Column(name = "endAt")
+    private Instant endAt;
 
     @Convert(converter = TaskStatusConverter.class)
     @Column(nullable = false)

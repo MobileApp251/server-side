@@ -20,11 +20,15 @@ public class TaskController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/{project_id}")
-    public ResponseEntity<TaskDTO> createTask(
+    public ResponseEntity<?> createTask(
         @PathVariable("project_id") String project_id,
         @RequestBody TaskCreateDTO taskDTO
     ){
-        return ResponseEntity.ok(taskService.createTask(project_id, taskDTO));
+        try {
+            return ResponseEntity.ok(taskService.createTask(project_id, taskDTO));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
 
     @PostMapping("/{project_id}/{task_id}")
@@ -51,8 +55,13 @@ public class TaskController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<TaskDTO>> getAllTasks(){
-        return ResponseEntity.ok(taskService.getAllTasks());
+    public ResponseEntity<?> getAllTasks(){
+        try {
+            return ResponseEntity.ok(taskService.getAllTasks());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(500).body("Internal Error!");
+        }
     }
 
     @GetMapping("/{project_id}")

@@ -30,6 +30,8 @@ public class TaskService {
         tdto.setContent(taskDTO.getContent());
         tdto.setTask_name(taskDTO.getTask_name());
         tdto.setStatus(taskDTO.getStatus());
+        tdto.setStartAt(taskDTO.getStartAt());
+        tdto.setEndAt(taskDTO.getEndAt());
         Task task = taskMapper.toEntity(tdto);
         Task savedTask = taskRepository.save(task);
         return taskMapper.toDTO(savedTask);
