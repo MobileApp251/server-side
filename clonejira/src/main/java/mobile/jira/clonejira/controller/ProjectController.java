@@ -38,7 +38,11 @@ public class ProjectController {
         String token = authHeader.substring(7);
         String uid = jwtTokenProvider.getUid(token);
 
-        return ResponseEntity.ok(projectService.createProject(uid, projectDTO));
+        try {
+            return ResponseEntity.ok(projectService.createProject(uid, projectDTO));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Error!");
+        }
     }
 
     @PostMapping("/join")
