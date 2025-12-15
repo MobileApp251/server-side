@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -29,6 +30,9 @@ public class User {
     private String email;
 
     private String username;
+
+    @OneToMany(mappedBy = "member")
+    private Set<Participate> participates;
 
     @PrePersist
     private void usernameGenerator() {

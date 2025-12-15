@@ -41,4 +41,8 @@ public class Task {
     @Convert(converter = TaskStatusConverter.class)
     @Column(nullable = false)
     private TaskStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "proj_id", insertable = false, updatable = false)
+    private Project project;
 }

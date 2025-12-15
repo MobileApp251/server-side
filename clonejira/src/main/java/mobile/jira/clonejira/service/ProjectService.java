@@ -1,0 +1,74 @@
+package mobile.jira.clonejira.service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.apache.coyote.BadRequestException;
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import mobile.jira.clonejira.dto.ProjectCreateDTO;
+import mobile.jira.clonejira.dto.ProjectDTO;
+import mobile.jira.clonejira.entity.Participate;
+import mobile.jira.clonejira.entity.Project;
+import mobile.jira.clonejira.entity.User;
+import mobile.jira.clonejira.entity.key.ProjectMemberId;
+import mobile.jira.clonejira.enums.ProjectRole;
+import mobile.jira.clonejira.mapper.ProjectMapper;
+import mobile.jira.clonejira.repository.ParticipateRepository;
+import mobile.jira.clonejira.repository.ProjectRepository;
+import mobile.jira.clonejira.repository.UserRepository;
+
+@Service
+@RequiredArgsConstructor
+public class ProjectService {
+    private final ProjectRepository projectRepository;
+    private final ParticipateRepository participateRepository;
+    private final UserRepository userRepository;
+    private final ProjectMapper mapper;
+
+    public void joinProject(String uid, String proj_id, String role) {
+        ProjectMemberId id = new ProjectMemberId(uid, proj_id);
+
+        ProjectRole roleEnum = ProjectRole.valueOf(role);
+
+        Participate participate = Participate.builder()
+                            .id(id).role(roleEnum).build();
+
+        participateRepository.save(participate);
+    }
+
+    public ProjectDTO createProject(String uid, ProjectCreateDTO dto){
+        Project project = new Project();
+        
+        project.setProj_name(dto.getProj_name());
+        project.setDescription(dto.getDescription());
+        project.setStartAt(dto.getStartAt());
+        project.setEndAt(dto.getEndAt());
+
+        Project newProject = projectRepository.save(project);
+
+        joinProject(uid, newProject.getProj_id().toString(), "leader");
+
+        return mapper.toDTO(newProject);
+    }
+
+    public List<ProjectDTO> getAllMyProjects(String uid) throws BadRequestException {
+        Optional<User> user = userRepository.findById(UUID.fromString(uid));
+
+        if (user.isEmpty()) throw new BadRequestException("User not found!");
+
+        return projectRepository
+            .findAllMyProjects(uid).stream()
+            .map(mapper::toDTO).toList();
+    }
+
+    public ProjectDTO getProjectById(String proj_id) throws BadRequestException {
+        Optional<Project> project = projectRepository.findById(UUID.fromString(proj_id));
+
+        if (project.isEmpty()) throw new BadRequestException("Project not found!");
+
+        return mapper.toDTO(project.get());
+    }
+}
