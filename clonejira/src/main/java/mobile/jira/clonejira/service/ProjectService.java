@@ -31,7 +31,7 @@ public class ProjectService {
     public void joinProject(String uid, String proj_id, String role) {
         ProjectMemberId id = new ProjectMemberId(uid, proj_id);
 
-        ProjectRole roleEnum = ProjectRole.valueOf(role);
+        ProjectRole roleEnum = ProjectRole.valueOf(role.toUpperCase());
 
         Participate participate = Participate.builder()
                             .id(id).role(roleEnum).build();

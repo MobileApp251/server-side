@@ -43,14 +43,17 @@ public class Project {
     private String description;
 
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(name = "createAt", nullable = false, updatable = false)
     private Instant createAt;
 
     @LastModifiedDate
+    @Column(name = "updateAt")
     private Instant updateAt;
 
+    @Column(name = "startAt")
     private Instant startAt;
 
+    @Column(name = "endAt")
     private Instant endAt;
 
     @OneToMany(mappedBy = "project")
