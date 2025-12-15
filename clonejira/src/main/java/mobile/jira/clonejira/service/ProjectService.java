@@ -60,7 +60,7 @@ public class ProjectService {
         if (user.isEmpty()) throw new BadRequestException("User not found!");
 
         return projectRepository
-            .findAllMyProjects(uid).stream()
+            .findAllMyProjects(UUID.fromString(uid)).stream()
             .map(mapper::toDTO).toList();
     }
 

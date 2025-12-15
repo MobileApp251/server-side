@@ -76,10 +76,15 @@ public class ProjectController {
             String token = authHeader.substring(7);
             String uid = jwtTokenProvider.getUid(token);
 
-            List<ProjectDTO> projects = projectService.getAllMyProjects(uid);
+            System.out.print("User with id: ");
+            System.out.println(uid);
 
+            List<ProjectDTO> projects = projectService.getAllMyProjects(uid);
+            System.out.print("Project Fetch: ");
+            System.out.println(projects.size());
             return ResponseEntity.ok(projects);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.status(500).body("Internal Error!");
         }
     }

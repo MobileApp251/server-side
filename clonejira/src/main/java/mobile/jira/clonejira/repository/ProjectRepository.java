@@ -15,5 +15,5 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
         "JOIN p.project " +
         "WHERE p.member.uid = :uid"
     )
-    List<Project> findAllMyProjects(@Param("uid") String uid);
+    List<Project> findAllMyProjects(@Param("uid") UUID uid);
 }
