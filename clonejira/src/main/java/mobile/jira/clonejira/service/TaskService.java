@@ -5,8 +5,11 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import mobile.jira.clonejira.entity.Assign;
 import mobile.jira.clonejira.entity.Task;
 import mobile.jira.clonejira.entity.key.ProjectTaskId;
+import mobile.jira.clonejira.entity.key.TaskAssigneeId;
+import mobile.jira.clonejira.repository.AssignRepository;
 import mobile.jira.clonejira.repository.TaskRepository;
 import mobile.jira.clonejira.mapper.*;
 import mobile.jira.clonejira.dto.TaskCreateDTO;
@@ -16,7 +19,7 @@ import mobile.jira.clonejira.dto.TaskDTO;
 @RequiredArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
-
+    private final AssignRepository assignRepository;
     private final TaskMapper taskMapper;
 
     public TaskDTO createTask(String project_id, TaskCreateDTO taskDTO) {
@@ -30,6 +33,13 @@ public class TaskService {
         Task task = taskMapper.toEntity(tdto);
         Task savedTask = taskRepository.save(task);
         return taskMapper.toDTO(savedTask);
+    }
+
+    public void assignTask(String uid, String proj_id, Integer task_id) {
+        TaskAssigneeId id = new TaskAssigneeId(uid, proj_id, task_id);
+        Assign newAssignment = new Assign(id);
+
+        assignRepository.save(newAssignment);
     }
 
     public List<TaskDTO> getAllTasks(){
