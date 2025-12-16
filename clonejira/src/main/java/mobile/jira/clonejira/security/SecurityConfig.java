@@ -25,40 +25,22 @@ public class SecurityConfig {
     }
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers(
-            "/swagger-ui/**", 
-            "/v3/api-docs/**", 
-            "/swagger-ui.html"
-        );
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Tắt CSRF
             .csrf(csrf -> csrf.disable())
-            
+            .cors(cors -> cors.disable()) // Để CorsConfig ở trên tự xử lý, hoặc enable nếu cần thiết
             .authorizeHttpRequests(authorize -> authorize
-                // CHO PHÉP CÁC ĐƯỜNG DẪN CÔNG KHAI (WHITELIST)
                 .requestMatchers(
                     "/",
                     "/auth/**",
-                    
-                    // --- CẤU HÌNH CHO SWAGGER (QUAN TRỌNG) ---
-                    "/v3/api-docs/**",          // API docs dạng JSON
-                    "/swagger-ui/**",           // Giao diện Swagger
-                    "/swagger-ui.html",         // Trang chủ Swagger
-                    "/swagger-resources/**",    // Tài nguyên cấu hình Swagger
-                    "/webjars/**"               // Các file CSS/JS tĩnh của thư viện
+                    // Swagger UI v3 (OpenAPI)
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
                 ).permitAll()
-                
-                // Các request còn lại bắt buộc phải đăng nhập
                 .anyRequest().authenticated()
-            ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);;
-            
-        // Nếu bạn có dùng JWT Filter, hãy uncomment dòng dưới đây:
-        // 
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
