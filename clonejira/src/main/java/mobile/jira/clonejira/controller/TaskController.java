@@ -31,27 +31,31 @@ public class TaskController {
         }
     }
 
-    @PostMapping("/{project_id}/{task_id}")
+    @PostMapping("/{uid}/{project_id}/{task_id}")
     public ResponseEntity<?> assignTask(
         HttpServletRequest request,
+        @PathVariable("uid") String uid,
         @PathVariable("project_id") String project_id,
         @PathVariable("task_id") Integer task_id
     ) {
-        try {
+        System.out.println(uid);
+        System.out.println(project_id);
+        System.out.println(task_id);
+        // try {
             String authHeader = request.getHeader("Authorization");
 
+            System.out.println(authHeader);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(401).body("Invalid Token");
             }
-            String token = authHeader.substring(7);
-            String uid = jwtTokenProvider.getUid(token);
 
+            System.out.println("Finish Auth");
             taskService.assignTask(uid, project_id, task_id);
             
             return ResponseEntity.ok("Assign Task Successfully!");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Internal Error!");
-        }
+        // } catch (Exception e) {
+        //     return ResponseEntity.status(500).body("Internal Error!");
+        // }
     }
 
     @GetMapping()
