@@ -1,6 +1,7 @@
 package mobile.jira.clonejira.controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,7 @@ import mobile.jira.clonejira.security.JwtTokenProvider;
 import mobile.jira.clonejira.service.UserService;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.coyote.BadRequestException;
@@ -38,27 +40,35 @@ public class MobileLoginController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
-    public ResponseEntity<AccessTokenDTO> login(
-        @RequestHeader("Authorization") String authHeader
+    public ResponseEntity<?> login(
+        @RequestBody Map<String, String> requestBody
     ) throws BadRequestException {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new BadRequestException("Invalid Token!");
-        }
-
-        String idGGToken = authHeader.substring(7);
+        System.out.println(googleClientId);
+        String idGGToken = requestBody.get("token");
+        System.out.println(idGGToken);
 
         try {
+            System.out.println("-------- idToken verify ----------");
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                                             .setAudience(Collections.singleton(googleClientId))
                                             .build();
             GoogleIdToken idToken = verifier.verify(idGGToken);
-            if (idToken == null) throw new BadRequestException("Invalid Token!");
+
+            System.out.println("-------- idToken ----------");
+            System.out.println(idToken);
+            System.out.println("-----------------");
+
+            if (idToken == null) return ResponseEntity.status(401).body("Wrong Google Login Token!");
 
             GoogleIdToken.Payload payload = idToken.getPayload();
+            System.out.println("----- Payload ---------");
+            System.out.println(payload);
 
             String email = payload.getEmail();
 
+            System.out.println(email);
             Optional<UserDTO> user = userService.getUserByEmail(email);
+            System.out.println(user);
             UserDTO userRes;
             if (user.isEmpty()) {
                 userRes = userService.createUser(email);
@@ -75,7 +85,7 @@ public class MobileLoginController {
             
             return ResponseEntity.ok(new AccessTokenDTO(jwtToken));
         } catch (Exception e) {
-            throw new BadRequestException("Authentication failed!");
+            return ResponseEntity.status(401).body("Invalid Token!");
         }
     }
 }
