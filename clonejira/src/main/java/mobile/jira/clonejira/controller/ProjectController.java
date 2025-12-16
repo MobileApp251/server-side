@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import mobile.jira.clonejira.dto.ProjectCreateDTO;
@@ -21,6 +22,7 @@ import mobile.jira.clonejira.service.ProjectService;
 @RestController
 @RequestMapping("/projects")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearer-key")
 public class ProjectController {
     private final ProjectService projectService;
     private final JwtTokenProvider jwtTokenProvider;

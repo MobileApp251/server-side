@@ -2,6 +2,8 @@ package mobile.jira.clonejira.controller;
 
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -21,6 +23,7 @@ import mobile.jira.clonejira.service.UserService;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearer-key")
 public class UserController {
     private final UserService userService;
 
@@ -37,6 +40,7 @@ public class UserController {
         return user.get();
     }
 
+    @SecurityRequirement(name = "")
     @GetMapping("/login")
     public AccessTokenDTO user(
         @AuthenticationPrincipal OAuth2User princtiplUser

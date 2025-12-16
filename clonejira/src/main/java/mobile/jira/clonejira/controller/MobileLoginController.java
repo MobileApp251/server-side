@@ -10,6 +10,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import mobile.jira.clonejira.dto.AccessTokenDTO;
 import mobile.jira.clonejira.dto.UserDTO;
@@ -27,6 +28,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 @RestController
 @RequestMapping("auth")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "")
 public class MobileLoginController {
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;

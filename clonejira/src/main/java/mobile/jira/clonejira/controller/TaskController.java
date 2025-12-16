@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import mobile.jira.clonejira.service.TaskService;
@@ -15,9 +16,9 @@ import mobile.jira.clonejira.security.JwtTokenProvider;
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearer-key")
 public class TaskController {
     private final TaskService taskService;
-    private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/{project_id}")
     public ResponseEntity<?> createTask(
