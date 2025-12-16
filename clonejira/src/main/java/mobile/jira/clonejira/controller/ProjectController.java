@@ -3,6 +3,8 @@ package mobile.jira.clonejira.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,29 +18,21 @@ import lombok.RequiredArgsConstructor;
 import mobile.jira.clonejira.dto.ProjectCreateDTO;
 import mobile.jira.clonejira.dto.ProjectDTO;
 import mobile.jira.clonejira.dto.ProjectJoinDTO;
-import mobile.jira.clonejira.security.JwtTokenProvider;
 import mobile.jira.clonejira.service.ProjectService;
 
 @RestController
 @RequestMapping("/projects")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearer-key")
+@SecurityRequirement(name = "bearerAuth")
 public class ProjectController {
     private final ProjectService projectService;
-    private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping()
     public ResponseEntity<?> createNewProject(
-        HttpServletRequest request,
+        @AuthenticationPrincipal UserDetails userDetails,
         @RequestBody ProjectCreateDTO projectDTO
     ){
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body("Invalid Token");
-        }
-        String token = authHeader.substring(7);
-        String uid = jwtTokenProvider.getUid(token);
+        String uid = userDetails.getUsername();
 
         try {
             return ResponseEntity.ok(projectService.createProject(uid, projectDTO));
@@ -49,17 +43,11 @@ public class ProjectController {
 
     @PostMapping("/join")
     public ResponseEntity<?> joinProject(
-        HttpServletRequest request,
+        @AuthenticationPrincipal UserDetails userDetails,
         @RequestBody ProjectJoinDTO project
     ) {
         try {
-            String authHeader = request.getHeader("Authorization");
-
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(401).body("Invalid Token");
-            }
-            String token = authHeader.substring(7);
-            String uid = jwtTokenProvider.getUid(token);
+            String uid = userDetails.getUsername();
 
             projectService.joinProject(uid, project.getProj_id(), project.getStatus());
 
@@ -71,16 +59,10 @@ public class ProjectController {
 
     @GetMapping()
     public ResponseEntity<?> getAllMyProjects (
-        HttpServletRequest request
+        @AuthenticationPrincipal UserDetails userDetails
     ) {
         try {
-            String authHeader = request.getHeader("Authorization");
-
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(401).body("Invalid Token");
-            }
-            String token = authHeader.substring(7);
-            String uid = jwtTokenProvider.getUid(token);
+            String uid = userDetails.getUsername();
 
             System.out.print("User with id: ");
             System.out.println(uid);

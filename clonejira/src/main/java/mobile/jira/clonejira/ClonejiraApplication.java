@@ -15,11 +15,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
     }
 )
 @SecurityScheme(
-    name = "Bearer Authentication", // 1. Tên của Security Scheme
-    type = SecuritySchemeType.HTTP,  // 2. Loại là HTTP
-    bearerFormat = "JWT",           // 3. Format là JWT (tùy chọn)
-    scheme = "bearer",              // 4. Cơ chế là bearer (quan trọng)
-    description = "Cần có JWT Token hợp lệ để truy cập endpoint này. Thêm 'Bearer ' trước token."
+    name = "bearerAuth", // <--- Tên này phải khớp với trong Controller
+    type = SecuritySchemeType.HTTP,
+    bearerFormat = "JWT",
+    scheme = "bearer"
 )
 @SpringBootApplication
 @EnableJpaAuditing
