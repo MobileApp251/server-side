@@ -18,35 +18,38 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public AuthenticationManager authenticationManager (AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
+    // @Bean
+    // public AuthenticationManager authenticationManager (AuthenticationConfiguration configuration) throws Exception {
+    //     return configuration.getAuthenticationManager();
+    // }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Tắt CSRF nếu bạn không dùng Token CSRF (phổ biến khi dùng REST APIs)
+            // Tắt CSRF
             .csrf(csrf -> csrf.disable())
             
-            // Cấu hình Authorization
             .authorizeHttpRequests(authorize -> authorize
-                // **TẠM TẮT AUTHENTICATION BẰNG CÁCH NÀY**
-                // Cho phép TẤT CẢ các request truy cập mà KHÔNG cần xác thực
-                
-
+                // CHO PHÉP CÁC ĐƯỜNG DẪN CÔNG KHAI (WHITELIST)
                 .requestMatchers(
                     "/",
                     "/auth/**",
-                    "/auth/login",
-                    "/v3/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html"
+                    
+                    // --- CẤU HÌNH CHO SWAGGER (QUAN TRỌNG) ---
+                    "/v3/api-docs/**",          // API docs dạng JSON
+                    "/swagger-ui/**",           // Giao diện Swagger
+                    "/swagger-ui.html",         // Trang chủ Swagger
+                    "/swagger-resources/**",    // Tài nguyên cấu hình Swagger
+                    "/webjars/**"               // Các file CSS/JS tĩnh của thư viện
                 ).permitAll()
-
+                
+                // Các request còn lại bắt buộc phải đăng nhập
                 .anyRequest().authenticated()
             );
             
+        // Nếu bạn có dùng JWT Filter, hãy uncomment dòng dưới đây:
+        // .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }
