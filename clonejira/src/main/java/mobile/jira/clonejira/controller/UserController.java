@@ -23,7 +23,7 @@ import mobile.jira.clonejira.service.UserService;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearer-key")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
     private final UserService userService;
 

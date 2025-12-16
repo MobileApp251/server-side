@@ -16,7 +16,7 @@ import mobile.jira.clonejira.security.JwtTokenProvider;
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearer-key")
+@SecurityRequirement(name = "bearerAuth")
 public class TaskController {
     private final TaskService taskService;
 
