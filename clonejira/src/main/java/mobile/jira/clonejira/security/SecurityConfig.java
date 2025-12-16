@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/",
                     "/auth/**",
+                    "/users/login",
                     // Swagger UI v3 (OpenAPI)
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
