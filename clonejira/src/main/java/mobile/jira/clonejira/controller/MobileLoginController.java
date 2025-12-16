@@ -12,6 +12,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import lombok.RequiredArgsConstructor;
 import mobile.jira.clonejira.dto.AccessTokenDTO;
 import mobile.jira.clonejira.dto.UserDTO;
@@ -30,7 +31,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 @RestController
 @RequestMapping("auth")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "")
 public class MobileLoginController {
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
@@ -40,6 +40,7 @@ public class MobileLoginController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
+    @SecurityRequirements(value = {})
     public ResponseEntity<?> login(
         @RequestBody Map<String, String> requestBody
     ) throws BadRequestException {

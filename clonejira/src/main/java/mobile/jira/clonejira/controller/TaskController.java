@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import mobile.jira.clonejira.service.TaskService;
 import mobile.jira.clonejira.dto.TaskCreateDTO;
 import mobile.jira.clonejira.dto.TaskDTO;
-import mobile.jira.clonejira.security.JwtTokenProvider;
 
 @RestController
 @RequestMapping("/api/tasks")
