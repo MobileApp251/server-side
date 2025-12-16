@@ -45,10 +45,10 @@ public class SecurityConfig {
                 
                 // Các request còn lại bắt buộc phải đăng nhập
                 .anyRequest().authenticated()
-            );
+            ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);;
             
         // Nếu bạn có dùng JWT Filter, hãy uncomment dòng dưới đây:
-        // .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        // 
 
         return http.build();
     }
