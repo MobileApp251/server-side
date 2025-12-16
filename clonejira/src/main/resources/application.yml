@@ -42,6 +42,8 @@ spring:
       mapper:
         accept-case-insensitive-enums: true
 
+
+
 # cloud is not a standard property under spring. Move to top-level if needed by Spring Cloud Gateway
 #cloud:
   # gateway:
@@ -64,3 +66,4 @@ jwt:
 
 server:
   port: 8081
+  forward-headers-strategy: framework
