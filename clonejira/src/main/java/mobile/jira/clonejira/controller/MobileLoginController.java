@@ -1,8 +1,9 @@
 package mobile.jira.clonejira.controller;
 
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,6 +28,9 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 @RestController
 @RequestMapping("auth")
@@ -88,5 +92,39 @@ public class MobileLoginController {
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Invalid Token!");
         }
+    }
+
+    @GetMapping("/google")
+    @SecurityRequirement(name = "")
+    public AccessTokenDTO user(
+            @AuthenticationPrincipal OAuth2User principal
+    ) throws BadRequestException{
+        if (principal == null) {
+            // Trường hợp này hiếm khi xảy ra nếu config security đúng
+            throw new BadRequestException("Không tìm thấy thông tin người dùng Google");
+        }
+
+        System.out.println("Login with Google Success");
+        System.out.println(principal.getAttributes());
+
+        // 1. Lấy thông tin từ OAuth2User
+        String email = principal.getAttribute("email");
+        Optional<UserDTO> user = userService.getUserByEmail(email);
+        UserDTO userRes;
+        if (user.isEmpty()) {
+            userRes = userService.createUser(email);
+        }
+        else {
+            userRes = user.get();
+        }
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                userRes.getUid(),
+                null,
+                Collections.emptyList()
+        );
+
+        String token = jwtTokenProvider.generateToken(auth);
+        return new AccessTokenDTO(token);
     }
 }

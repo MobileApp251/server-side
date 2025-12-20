@@ -12,6 +12,12 @@ spring:
               scope:
                 - email
                 - profile
+        resourceserver:
+          jwt:
+            # Đây là địa chỉ Google phát hành token
+            issuer-uri: https://accounts.google.com
+            # Đây là địa chỉ chứa Public Key của Google để verify chữ ký
+            jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
   
   docker:
     compose:

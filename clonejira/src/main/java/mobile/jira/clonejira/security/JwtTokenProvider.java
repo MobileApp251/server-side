@@ -3,6 +3,7 @@ package mobile.jira.clonejira.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 
 import java.security.Key;
 import java.util.Date;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException.Unauthorized;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
     
     @Value("${jwt.jwtSecret}")
@@ -20,6 +22,7 @@ public class JwtTokenProvider {
 
     @Value("${jwt.jwtExpiration}")
     private int jwtExpiration;
+
 
     private Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
