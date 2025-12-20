@@ -31,7 +31,7 @@ public class TaskController {
         }
     }
 
-    @PostMapping("/{uid}/{project_id}/{task_id}")
+    @GetMapping("/{uid}/{project_id}/{task_id}")
     public ResponseEntity<?> assignTask(
         HttpServletRequest request,
         @PathVariable("uid") String uid,
@@ -41,7 +41,7 @@ public class TaskController {
         System.out.println(uid);
         System.out.println(project_id);
         System.out.println(task_id);
-        // try {
+        try {
             String authHeader = request.getHeader("Authorization");
 
             System.out.println(authHeader);
@@ -53,9 +53,9 @@ public class TaskController {
             taskService.assignTask(uid, project_id, task_id);
             
             return ResponseEntity.ok("Assign Task Successfully!");
-        // } catch (Exception e) {
-        //     return ResponseEntity.status(500).body("Internal Error!");
-        // }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Error!");
+        }
     }
 
     @GetMapping()
