@@ -40,15 +40,14 @@ public class ProjectController {
         }
     }
 
-    @PostMapping("/join")
+    @PostMapping("/join/{uid}")
     public ResponseEntity<?> joinProject(
-        @AuthenticationPrincipal UserDetails userDetails,
-        @RequestBody ProjectJoinDTO project
+            @PathVariable("uid") String uid,
+            @RequestBody ProjectJoinDTO project
     ) {
         try {
-            String uid = userDetails.getUsername();
 
-            projectService.joinProject(uid, project.getProj_id(), project.getStatus());
+            projectService.joinProject(uid, project.getProj_id(), project.getRole());
 
             return ResponseEntity.ok("Join Project successfully!");
         } catch (Exception e) {
