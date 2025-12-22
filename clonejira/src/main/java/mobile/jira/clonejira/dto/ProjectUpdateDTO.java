@@ -1,16 +1,13 @@
 package mobile.jira.clonejira.dto;
 
-import java.time.Instant;
-
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
-public class ProjectDTO {
-    private String proj_id;
+public class ProjectUpdateDTO {
     private String proj_name;
     private String description;
-    private Instant createAt;
-    private Instant updateAt;
     private Instant startAt;
     private Instant endAt;
     private boolean isDone;

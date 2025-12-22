@@ -4,7 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import mobile.jira.clonejira.dto.ProjectUpdateDTO;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -54,13 +58,19 @@ public class ProjectService {
         return mapper.toDTO(newProject);
     }
 
-    public List<ProjectDTO> getAllMyProjects(String uid) throws BadRequestException {
+    public List<ProjectDTO> getAllMyProjects(String uid, int page, int size, String sortBy, String sortDir) throws BadRequestException {
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
         Optional<User> user = userRepository.findById(UUID.fromString(uid));
 
         if (user.isEmpty()) throw new BadRequestException("User not found!");
 
         return projectRepository
-            .findAllMyProjects(UUID.fromString(uid)).stream()
+            .findAllMyProjects(UUID.fromString(uid), pageable).stream()
             .map(mapper::toDTO).toList();
     }
 
@@ -70,5 +80,12 @@ public class ProjectService {
         if (project.isEmpty()) throw new BadRequestException("Project not found!");
 
         return mapper.toDTO(project.get());
+    }
+
+    public ProjectDTO updateProject(String proj_id, ProjectUpdateDTO dto) throws BadRequestException {
+        Project project = projectRepository.findById(UUID.fromString(proj_id)).orElseThrow(() -> new BadRequestException("Project not found!"));
+        mapper.updateProject(dto, project);
+
+        return mapper.toDTO(project);
     }
 }

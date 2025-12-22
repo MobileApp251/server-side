@@ -55,6 +55,9 @@ public class Project {
     @Column(name = "endAt")
     private Instant endAt;
 
+    @Column(name = "isDone")
+    private boolean isDone;
+
     @OneToMany(mappedBy = "project")
     private Set<Task> tasks;
 

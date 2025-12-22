@@ -2,15 +2,12 @@ package mobile.jira.clonejira.controller;
 
 import java.util.List;
 
+import mobile.jira.clonejira.dto.ProjectUpdateDTO;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -57,15 +54,18 @@ public class ProjectController {
 
     @GetMapping()
     public ResponseEntity<?> getAllMyProjects (
-        @AuthenticationPrincipal UserDetails userDetails
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "startAt") String sortBy,
+        @RequestParam(defaultValue = "desc") String sortDir
     ) {
         try {
             String uid = userDetails.getUsername();
 
             System.out.print("User with id: ");
             System.out.println(uid);
-
-            List<ProjectDTO> projects = projectService.getAllMyProjects(uid);
+            List<ProjectDTO> projects = projectService.getAllMyProjects(uid, page, size, sortBy, sortDir);
             System.out.print("Project Fetch: ");
             System.out.println(projects.size());
             return ResponseEntity.ok(projects);
@@ -86,5 +86,17 @@ public class ProjectController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal Error!");
         }       
+    }
+
+    @PatchMapping("/{project_id}")
+    public ResponseEntity<?> updateProjectById(
+            @PathVariable("project_id") String project_id,
+            @RequestBody ProjectUpdateDTO dto
+    ){
+        try {
+            return ResponseEntity.ok(projectService.updateProject(project_id, dto));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Error!");
+        }
     }
 }

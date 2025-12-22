@@ -1,7 +1,7 @@
 package mobile.jira.clonejira.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import mobile.jira.clonejira.dto.ProjectUpdateDTO;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +9,6 @@ import mobile.jira.clonejira.dto.ProjectDTO;
 import mobile.jira.clonejira.entity.Project;
 
 @Mapper(componentModel = "spring")
-@Component
 public interface ProjectMapper {
     ProjectMapper INSTANCE = Mappers.getMapper(ProjectMapper.class);
 
@@ -18,4 +17,7 @@ public interface ProjectMapper {
     Project toEntity(ProjectDTO dto);
 
     ProjectDTO toDTO(Project project);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateProject(ProjectUpdateDTO dto, @MappingTarget Project project);
 }
