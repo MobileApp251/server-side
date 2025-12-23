@@ -14,6 +14,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import mobile.jira.clonejira.service.JwtService;
@@ -28,30 +29,50 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private JwtService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
+        try{
+            // 1. Lấy JWT từ request
+            String token = getJwtFromRequest(request);
+            if (!StringUtils.hasText(token)) {
+                System.out.println("No token found");
+                filterChain.doFilter(request, response);
 
-        // 1. Lấy JWT từ request
-        String token = getJwtFromRequest(request);
+                return;
+            }
 
-        // 2. Xác thực và tải thông tin người dùng
-        if (StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
-            
-            String uid = jwtProvider.getUid(token);
+            // 2. Xác thực và tải thông tin người dùng
+            if (StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
 
-            // Tải thông tin người dùng để tạo đối tượng Authentication
-            UserDetails userDetails = userDetailsService.loadUserByUsername(uid);
+                System.out.println("Token found");
+                System.out.println(token);
+                String uid = jwtProvider.getUid(token);
+                System.out.println(uid);
 
-            // Tạo đối tượng Authentication và set vào Security Context
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities()
-            );
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // Tải thông tin người dùng để tạo đối tượng Authentication
+                UserDetails userDetails = userDetailsService.loadUserByUsername(uid);
+                System.out.println(userDetails);
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                // Tạo đối tượng Authentication và set vào Security Context
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities()
+                );
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                System.out.println("DEBUG: UserDetails is null for uid: " + token);
+            }
+
+
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
-
+        System.out.println("Done");
         filterChain.doFilter(request, response);
     }
 

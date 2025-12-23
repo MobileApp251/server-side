@@ -2,6 +2,8 @@ package mobile.jira.clonejira.entity;
 
 import java.time.Instant;
 
+import mobile.jira.clonejira.enums.TaskPriority;
+import mobile.jira.clonejira.enums.converter.TaskPriorityConverter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -47,6 +49,10 @@ public class Task {
     @Convert(converter = TaskStatusConverter.class)
     @Column(nullable = false)
     private TaskStatus status;
+
+    @Convert(converter = TaskPriorityConverter.class)
+    @Column(nullable = false)
+    private TaskPriority priority;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proj_id", insertable = false, updatable = false)

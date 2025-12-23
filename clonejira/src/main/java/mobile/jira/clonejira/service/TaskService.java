@@ -33,6 +33,7 @@ public class TaskService {
         tdto.setContent(taskDTO.getContent());
         tdto.setTask_name(taskDTO.getTask_name());
         tdto.setStatus(taskDTO.getStatus());
+        tdto.setPriority(taskDTO.getPriority());
         tdto.setStartAt(taskDTO.getStartAt());
         tdto.setEndAt(taskDTO.getEndAt());
         Task task = taskMapper.toEntity(tdto);

@@ -17,4 +17,5 @@ public class TaskDTO {
     private Instant startAt;
     private Instant endAt;
     private TaskStatus status;
+    private TaskPriority priority;
 }
