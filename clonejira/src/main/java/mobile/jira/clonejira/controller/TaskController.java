@@ -47,14 +47,16 @@ public class TaskController {
         System.out.println(task_id);
         try {
             Optional<Project> checkProject = projectRepository.findProjectByUid(UUID.fromString(uid), UUID.fromString(project_id));
+            System.out.println("------------ Check Point -------------");
+            System.out.println(checkProject);
             if (checkProject.isEmpty()) {
-                ResponseEntity.status(400).body("User is not present in project!");
+                return ResponseEntity.status(400).body("User is not present in project!");
             }
             taskService.assignTask(uid, project_id, task_id);
             
             return ResponseEntity.ok("Assign Task Successfully!");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Internal Error!");
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
