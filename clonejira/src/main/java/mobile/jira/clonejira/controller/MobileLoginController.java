@@ -1,11 +1,8 @@
 package mobile.jira.clonejira.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -97,12 +94,15 @@ public class MobileLoginController {
     @GetMapping("/google")
     @SecurityRequirement(name = "")
     public AccessTokenDTO user(
-            @AuthenticationPrincipal OAuth2User principal
+            @AuthenticationPrincipal OAuth2User principal,
+            HttpServletRequest request,
+            @RequestParam(value = "redirect_uri", defaultValue = "") String redirectUri
     ) throws BadRequestException{
         if (principal == null) {
             // Trường hợp này hiếm khi xảy ra nếu config security đúng
             throw new BadRequestException("Không tìm thấy thông tin người dùng Google");
         }
+        request.getSession().setAttribute("APP_REDIRECT_URI", redirectUri);
 
         System.out.println("Login with Google Success");
         System.out.println(principal.getAttributes());

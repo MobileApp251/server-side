@@ -26,8 +26,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private UserService userService;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication
+    ) throws IOException, ServletException {
         
         // 1. Lấy thông tin user từ Google
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
@@ -48,9 +51,22 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // 2. Tạo Access Token hệ thống
         String accessToken = jwtTokenProvider.generateToken(auth);
 
+        HttpSession session = request.getSession(false);
+        String targetUrl = null;
+
+        if (session != null) {
+            targetUrl = (String) session.getAttribute("APP_REDIRECT_URI");
+            System.out.println("client "+targetUrl);
+            // Xóa khỏi session sau khi lấy để dọn dẹp
+            session.removeAttribute("APP_REDIRECT_URI");
+            if (targetUrl == null || targetUrl == "") {
+                targetUrl = "/auth/google";
+            }
+        }
+
         // 3. Redirect sang trang success (Token nằm trên URL Param)
         // URL này là URL của backend luôn, ví dụ: http://api.backend.com/login-success
-        String targetUrl = "/auth/google?accessToken=" + accessToken;
+        targetUrl = targetUrl + "?accessToken=" + accessToken;
         
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
