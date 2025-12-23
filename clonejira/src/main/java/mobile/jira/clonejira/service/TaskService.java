@@ -2,6 +2,8 @@ package mobile.jira.clonejira.service;
 
 import java.util.List;
 
+import mobile.jira.clonejira.repository.ProjectRepository;
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import mobile.jira.clonejira.dto.TaskDTO;
 @RequiredArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
     private final AssignRepository assignRepository;
     private final TaskMapper taskMapper;
 
@@ -37,7 +40,8 @@ public class TaskService {
         return taskMapper.toDTO(savedTask);
     }
 
-    public void assignTask(String uid, String proj_id, Integer task_id) {
+    public void assignTask(String uid, String proj_id, Integer task_id) throws BadRequestException {
+
         TaskAssigneeId id = new TaskAssigneeId(uid, proj_id, task_id);
         Assign newAssignment = new Assign(id);
 

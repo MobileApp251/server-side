@@ -3,8 +3,10 @@ package mobile.jira.clonejira.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import mobile.jira.clonejira.dto.ProjectUpdateDTO;
+import mobile.jira.clonejira.dto.*;
+import mobile.jira.clonejira.entity.ProjectMember;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,8 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import mobile.jira.clonejira.dto.ProjectCreateDTO;
-import mobile.jira.clonejira.dto.ProjectDTO;
 import mobile.jira.clonejira.entity.Participate;
 import mobile.jira.clonejira.entity.Project;
 import mobile.jira.clonejira.entity.User;
@@ -74,12 +74,19 @@ public class ProjectService {
             .map(mapper::toDTO).toList();
     }
 
-    public ProjectDTO getProjectById(String proj_id) throws BadRequestException {
+    public ProjectGetDTO getProjectById(String proj_id) throws BadRequestException {
         Optional<Project> project = projectRepository.findById(UUID.fromString(proj_id));
 
         if (project.isEmpty()) throw new BadRequestException("Project not found!");
 
-        return mapper.toDTO(project.get());
+        List<ProjectMember> user = projectRepository.findMembersOfProject(UUID.fromString(proj_id));
+
+        ProjectGetDTO dto = new ProjectGetDTO();
+        dto.setProject(mapper.toDTO(project.get()));
+        List<ProjectMemberDTO> pm = user.stream().map(mapper::toDTO).toList();
+        dto.setMembers(pm);
+
+        return dto;
     }
 
     public ProjectDTO updateProject(String proj_id, ProjectUpdateDTO dto) throws BadRequestException {

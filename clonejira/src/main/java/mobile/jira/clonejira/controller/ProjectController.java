@@ -2,7 +2,7 @@ package mobile.jira.clonejira.controller;
 
 import java.util.List;
 
-import mobile.jira.clonejira.dto.ProjectUpdateDTO;
+import mobile.jira.clonejira.dto.*;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,9 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
-import mobile.jira.clonejira.dto.ProjectCreateDTO;
-import mobile.jira.clonejira.dto.ProjectDTO;
-import mobile.jira.clonejira.dto.ProjectJoinDTO;
 import mobile.jira.clonejira.service.ProjectService;
 
 @RestController
@@ -80,11 +77,11 @@ public class ProjectController {
         @PathVariable("project_id") String project_id
     ) {
         try {
-            ProjectDTO project = projectService.getProjectById(project_id);
+            ProjectGetDTO project = projectService.getProjectById(project_id);
 
             return ResponseEntity.ok(project);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Internal Error!");
+            return ResponseEntity.status(500).body(e.getMessage());
         }       
     }
 

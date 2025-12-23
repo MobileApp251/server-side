@@ -1,7 +1,11 @@
 package mobile.jira.clonejira.controller;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
+import mobile.jira.clonejira.entity.Project;
+import mobile.jira.clonejira.repository.ProjectRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +22,7 @@ import mobile.jira.clonejira.dto.TaskDTO;
 @SecurityRequirement(name = "bearerAuth")
 public class TaskController {
     private final TaskService taskService;
+    private final ProjectRepository projectRepository;
 
     @PostMapping("/{project_id}")
     public ResponseEntity<?> createTask(
@@ -31,9 +36,8 @@ public class TaskController {
         }
     }
 
-    @GetMapping("/{uid}/{project_id}/{task_id}")
+    @PostMapping("/{uid}/{project_id}/{task_id}")
     public ResponseEntity<?> assignTask(
-        HttpServletRequest request,
         @PathVariable("uid") String uid,
         @PathVariable("project_id") String project_id,
         @PathVariable("task_id") Integer task_id
@@ -42,14 +46,10 @@ public class TaskController {
         System.out.println(project_id);
         System.out.println(task_id);
         try {
-            String authHeader = request.getHeader("Authorization");
-
-            System.out.println(authHeader);
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(401).body("Invalid Token");
+            Optional<Project> checkProject = projectRepository.findProjectByUid(UUID.fromString(uid), UUID.fromString(project_id));
+            if (checkProject.isEmpty()) {
+                ResponseEntity.status(400).body("User is not present in project!");
             }
-
-            System.out.println("Finish Auth");
             taskService.assignTask(uid, project_id, task_id);
             
             return ResponseEntity.ok("Assign Task Successfully!");
