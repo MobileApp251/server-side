@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import mobile.jira.clonejira.dto.TaskUpdateDTO;
 import mobile.jira.clonejira.entity.Project;
 import mobile.jira.clonejira.repository.ProjectRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -75,5 +78,45 @@ public class TaskController {
         @PathVariable("project_id") String project_id
     ){
         return ResponseEntity.ok(taskService.getTasksByProject(project_id));
+    }
+
+    @GetMapping("/{project_id}/{task_id}")
+    public ResponseEntity<?> getTaskByProject(
+        @AuthenticationPrincipal UserDetails user,
+        @PathVariable("project_id") String project_id,
+        @PathVariable("task_id") Integer task_id
+    ){
+        try {
+            String uid = user.getUsername();
+            Optional<Project> checkProject =  projectRepository.findProjectByUid(UUID.fromString(uid), UUID.fromString(project_id));
+            if (checkProject.isEmpty()) {
+                return ResponseEntity.status(400).body("User is not present in project!");
+            }
+            TaskDTO taskDTO = taskService.getTaskById(project_id, task_id);
+
+            return ResponseEntity.ok(taskDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Error!");
+        }
+    }
+
+    @PatchMapping("/{project_id}/{task_id}")
+    ResponseEntity<?> updateTask(
+        @AuthenticationPrincipal UserDetails user,
+        @PathVariable("project_id") String project_id,
+        @PathVariable("task_id") Integer task_id,
+        @RequestBody TaskUpdateDTO taskUpdateDTO
+    ){
+        try {
+            String uid = user.getUsername();
+            Optional<Project> checkProject =  projectRepository.findProjectByUid(UUID.fromString(uid), UUID.fromString(project_id));
+            if (checkProject.isEmpty()) {
+                return ResponseEntity.status(400).body("User is not present in project!");
+            }
+            TaskDTO taskUpdate =  taskService.updateTask(project_id, task_id, taskUpdateDTO);
+            return ResponseEntity.ok(taskUpdate);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Error!");
+        }
     }
 }

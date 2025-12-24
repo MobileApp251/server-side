@@ -1,7 +1,7 @@
 package mobile.jira.clonejira.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import mobile.jira.clonejira.dto.TaskUpdateDTO;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 
@@ -23,4 +23,7 @@ public interface TaskMapper {
     @Mapping(target = "createAt", ignore = true)
     @Mapping(target = "updateAt", ignore = true)
     TaskDTO toDTO(Task task);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateTask(TaskUpdateDTO dto, @MappingTarget Task task);
 }

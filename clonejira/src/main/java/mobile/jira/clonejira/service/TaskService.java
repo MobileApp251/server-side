@@ -2,6 +2,7 @@ package mobile.jira.clonejira.service;
 
 import java.util.List;
 
+import mobile.jira.clonejira.dto.TaskUpdateDTO;
 import mobile.jira.clonejira.repository.ProjectRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
@@ -71,4 +72,12 @@ public class TaskService {
                 .orElseThrow(() -> new RuntimeException("Task not found"));
         return taskMapper.toDTO(task);
     }
+
+    public TaskDTO updateTask(String project_id, Integer task_id, TaskUpdateDTO taskUpdateDTO) {
+        ProjectTaskId id = new ProjectTaskId(project_id, task_id);
+        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+        taskMapper.updateTask(taskUpdateDTO, task);
+        return taskMapper.toDTO(task);
+    }
+
 }
