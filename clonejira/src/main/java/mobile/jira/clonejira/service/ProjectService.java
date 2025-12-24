@@ -92,7 +92,7 @@ public class ProjectService {
     public ProjectDTO updateProject(String proj_id, ProjectUpdateDTO dto) throws BadRequestException {
         Project project = projectRepository.findById(UUID.fromString(proj_id)).orElseThrow(() -> new BadRequestException("Project not found!"));
         mapper.updateProject(dto, project);
-
-        return mapper.toDTO(project);
+        Project projectRes = projectRepository.save(project);
+        return mapper.toDTO(projectRes);
     }
 }
