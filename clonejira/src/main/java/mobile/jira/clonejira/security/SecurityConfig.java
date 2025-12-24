@@ -61,7 +61,7 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // API nên là Stateless
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
-                                "/",
+                                "/auth/**",
                                 "/auth/login",
                                 "/auth/google",
                                 "/v3/api-docs/**",

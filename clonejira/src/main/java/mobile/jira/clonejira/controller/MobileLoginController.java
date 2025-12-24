@@ -1,6 +1,11 @@
 package mobile.jira.clonejira.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import mobile.jira.clonejira.dto.LoginDTO;
+import mobile.jira.clonejira.entity.User;
+import mobile.jira.clonejira.mapper.UserMapper;
+import mobile.jira.clonejira.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,13 +37,18 @@ import org.springframework.security.oauth2.jwt.Jwt;
 @RestController
 @RequestMapping("auth")
 @RequiredArgsConstructor
+@SecurityRequirements(value = {})
 public class MobileLoginController {
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
     private final UserService userService;
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     @SecurityRequirements(value = {})
@@ -126,5 +136,58 @@ public class MobileLoginController {
 
         String token = jwtTokenProvider.generateToken(auth);
         return new AccessTokenDTO(token);
+    }
+
+    @PostMapping("/sign-up")
+    public ResponseEntity<?> SignUp(
+        @RequestBody LoginDTO loginDTO
+    ){
+        try {
+            User user = new User();
+            user.setEmail(loginDTO.getEmail());
+            String encodedPassword = passwordEncoder.encode(loginDTO.getPassword());
+            user.setPassword(encodedPassword);
+
+            User userRes = userRepository.save(user);
+            UsernamePasswordAuthenticationToken
+                    authentication = new UsernamePasswordAuthenticationToken(
+                    userRes.getUid(), userRes.getPassword(), Collections.emptyList()
+            );
+
+            String jwtToken = jwtTokenProvider.generateToken(authentication);
+
+            return ResponseEntity.ok(new AccessTokenDTO(jwtToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("Sign up failed!");
+        }
+    }
+
+    @PostMapping("/sign-in")
+    public ResponseEntity<?> SignIn(
+            @RequestBody LoginDTO loginDTO
+    ){
+        try {
+            Optional<User> userExist = userRepository.findByEmail(loginDTO.getEmail());
+            if (userExist.isEmpty()) {
+                return ResponseEntity.status(404).body("User not found!");
+            }
+
+            if (!passwordEncoder.matches(loginDTO.getPassword(), userExist.get().getPassword())) {
+                return ResponseEntity.status(400).body("Wrong Password!");
+            }
+
+            User  userRes = userExist.get();
+
+            UsernamePasswordAuthenticationToken
+                    authentication = new UsernamePasswordAuthenticationToken(
+                    userRes.getUid(), userRes.getPassword(), Collections.emptyList()
+            );
+
+            String jwtToken = jwtTokenProvider.generateToken(authentication);
+
+            return ResponseEntity.ok(new AccessTokenDTO(jwtToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("Sign in failed!");
+        }
     }
 }

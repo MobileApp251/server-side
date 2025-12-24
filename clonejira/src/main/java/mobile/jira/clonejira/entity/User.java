@@ -31,6 +31,8 @@ public class User {
 
     private String username;
 
+    private String password;
+
     @OneToMany(mappedBy = "member")
     private Set<Participate> participates;
 
