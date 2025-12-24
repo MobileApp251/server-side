@@ -77,7 +77,8 @@ public class TaskService {
         ProjectTaskId id = new ProjectTaskId(project_id, task_id);
         Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
         taskMapper.updateTask(taskUpdateDTO, task);
-        return taskMapper.toDTO(task);
-    }
 
+        Task taskRes = taskRepository.save(task);
+        return taskMapper.toDTO(taskRes);
+    }
 }
