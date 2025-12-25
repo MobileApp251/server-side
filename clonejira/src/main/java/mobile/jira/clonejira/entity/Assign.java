@@ -1,8 +1,6 @@
 package mobile.jira.clonejira.entity;
 
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +14,21 @@ import mobile.jira.clonejira.entity.key.TaskAssigneeId;
 @AllArgsConstructor
 @Builder
 public class Assign {
+    Assign(TaskAssigneeId id) {
+        this.id = id;
+    }
+
     @EmbeddedId
     private TaskAssigneeId id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name = "proj_id", referencedColumnName = "proj_id", insertable = false, updatable = false),
+        @JoinColumn(name = "task_id", referencedColumnName = "task_id", insertable = false, updatable = false)
+    })
+    private Task task;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "uid", insertable = false, updatable = false)
+    private User assignee;
 }

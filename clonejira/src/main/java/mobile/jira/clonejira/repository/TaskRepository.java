@@ -1,11 +1,14 @@
 package mobile.jira.clonejira.repository;
 
+import mobile.jira.clonejira.entity.Assign;
 import mobile.jira.clonejira.entity.Task;
 import mobile.jira.clonejira.entity.key.ProjectTaskId;
 
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +23,11 @@ public interface TaskRepository extends JpaRepository<Task, ProjectTaskId> {
 
     @Query("SELECT t FROM Task t WHERE t.id.proj_id = :project_id")
     List<Task> findTaskByProjId(@Param("project_id") String project_id);
+
+    @Query(
+        "select t, a.assignee from Task t " +
+        "join Assign a on t.id = a.task.id " +
+        "where t.project.proj_id = :project_id and a.assignee.uid = :uid"
+    )
+    List<Object[]> findAllByAssignee(@Param("project_id") UUID project_id, @Param("uid") UUID uid);
 }

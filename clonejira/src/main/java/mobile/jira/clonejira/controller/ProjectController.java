@@ -87,13 +87,25 @@ public class ProjectController {
 
     @PatchMapping("/{project_id}")
     public ResponseEntity<?> updateProjectById(
-            @PathVariable("project_id") String project_id,
-            @RequestBody ProjectUpdateDTO dto
+        @PathVariable("project_id") String project_id,
+        @RequestBody ProjectUpdateDTO dto
     ){
         try {
             return ResponseEntity.ok(projectService.updateProject(project_id, dto));
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal Error!");
+        }
+    }
+
+    @DeleteMapping("/{project_id}")
+    public ResponseEntity<?> deleteProjectById(
+        @PathVariable("project_id") String project_id
+    ){
+        try {
+            projectService.deleteProject(project_id);
+            return ResponseEntity.ok("Delete Project successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 }

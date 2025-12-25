@@ -158,7 +158,7 @@ public class MobileLoginController {
 
             return ResponseEntity.ok(new AccessTokenDTO(jwtToken));
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("Sign up failed!");
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 

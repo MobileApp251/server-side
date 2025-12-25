@@ -95,4 +95,8 @@ public class ProjectService {
         Project projectRes = projectRepository.save(project);
         return mapper.toDTO(projectRes);
     }
+
+    public void deleteProject(String project_id) {
+        projectRepository.deleteById(UUID.fromString(project_id));
+    }
 }

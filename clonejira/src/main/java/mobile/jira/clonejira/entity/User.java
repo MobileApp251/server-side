@@ -36,6 +36,9 @@ public class User {
     @OneToMany(mappedBy = "member")
     private Set<Participate> participates;
 
+    @OneToMany(mappedBy = "assignee")
+    private Set<Assign> tasks;
+
     @PrePersist
     private void usernameGenerator() {
         if (uid.toString() == "" || email == "") return;

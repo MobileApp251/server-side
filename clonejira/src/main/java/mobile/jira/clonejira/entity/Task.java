@@ -1,6 +1,7 @@
 package mobile.jira.clonejira.entity;
 
 import java.time.Instant;
+import java.util.Set;
 
 import mobile.jira.clonejira.enums.TaskPriority;
 import mobile.jira.clonejira.enums.converter.TaskPriorityConverter;
@@ -57,4 +58,7 @@ public class Task {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proj_id", insertable = false, updatable = false)
     private Project project;
+
+    @OneToMany(mappedBy = "task")
+    private Set<Assign> assignments;
 }

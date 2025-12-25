@@ -74,10 +74,26 @@ public class TaskController {
     }
 
     @GetMapping("/{project_id}")
-    public ResponseEntity<List<TaskDTO>> getTasksByProject(
+    public ResponseEntity<?> getTasksByProject(
         @PathVariable("project_id") String project_id
     ){
-        return ResponseEntity.ok(taskService.getTasksByProject(project_id));
+        try {
+            return ResponseEntity.ok(taskService.getTasksByProject(project_id));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Error");
+        }
+    }
+
+    @GetMapping("/assignee/{project_id}/{uid}")
+    public ResponseEntity<?> getTasksByProjectNUser(
+            @PathVariable("project_id") String project_id,
+            @PathVariable("uid") String uid
+    ){
+        try {
+            return ResponseEntity.ok(taskService.getAllTasksByAssignee(project_id, uid));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Error");
+        }
     }
 
     @GetMapping("/{project_id}/{task_id}")
@@ -101,7 +117,7 @@ public class TaskController {
     }
 
     @PatchMapping("/{project_id}/{task_id}")
-    ResponseEntity<?> updateTask(
+    public ResponseEntity<?> updateTask(
         @AuthenticationPrincipal UserDetails user,
         @PathVariable("project_id") String project_id,
         @PathVariable("task_id") Integer task_id,
@@ -117,6 +133,19 @@ public class TaskController {
             return ResponseEntity.ok(taskUpdate);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal Error!");
+        }
+    }
+
+    @DeleteMapping("/{project_id}/{task_id}")
+    public ResponseEntity<?> deleteTask(
+        @PathVariable("project_id") String project_id,
+        @PathVariable("task_id") Integer task_id
+    ){
+        try {
+            taskService.deleteTask(project_id, task_id);
+            return ResponseEntity.ok("Delete Task Successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 }

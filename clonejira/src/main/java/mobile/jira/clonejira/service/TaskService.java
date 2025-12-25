@@ -1,22 +1,22 @@
 package mobile.jira.clonejira.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-import mobile.jira.clonejira.dto.TaskUpdateDTO;
+import mobile.jira.clonejira.dto.*;
 import mobile.jira.clonejira.repository.ProjectRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import mobile.jira.clonejira.entity.Assign;
-import mobile.jira.clonejira.entity.Task;
+import mobile.jira.clonejira.entity.*;
 import mobile.jira.clonejira.entity.key.ProjectTaskId;
 import mobile.jira.clonejira.entity.key.TaskAssigneeId;
 import mobile.jira.clonejira.repository.AssignRepository;
 import mobile.jira.clonejira.repository.TaskRepository;
 import mobile.jira.clonejira.mapper.*;
-import mobile.jira.clonejira.dto.TaskCreateDTO;
-import mobile.jira.clonejira.dto.TaskDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +25,7 @@ public class TaskService {
     private final ProjectRepository projectRepository;
     private final AssignRepository assignRepository;
     private final TaskMapper taskMapper;
+    private final UserMapper userMapper;
 
     public TaskDTO createTask(String project_id, TaskCreateDTO taskDTO) {
         TaskDTO tdto = new TaskDTO();
@@ -45,7 +46,8 @@ public class TaskService {
     public void assignTask(String uid, String proj_id, Integer task_id) throws BadRequestException {
 
         TaskAssigneeId id = new TaskAssigneeId(uid, proj_id, task_id);
-        Assign newAssignment = new Assign(id);
+        Assign newAssignment = new Assign();
+        newAssignment.setId(id);
 
         assignRepository.save(newAssignment);
     }
@@ -73,6 +75,25 @@ public class TaskService {
         return taskMapper.toDTO(task);
     }
 
+    public List<TaskAssigneeDTO> getAllTasksByAssignee(String project_id, String uid){
+        List<Object[]> tasks = taskRepository.findAllByAssignee(UUID.fromString(project_id), UUID.fromString(uid));
+
+        List<TaskAssigneeDTO> dtos = tasks.stream().map(row -> {
+            Task task = (Task) row[0];
+            User user = (User) row[1];
+            TaskDTO dto = taskMapper.toDTO(task);
+            UserDTO member = userMapper.toDTO(user);
+
+            TaskAssigneeDTO assigneeDTO = new TaskAssigneeDTO();
+            assigneeDTO.setTask(dto);
+            assigneeDTO.setMember(member);
+
+            return assigneeDTO;
+        }).toList() ;
+
+        return dtos;
+    }
+
     public TaskDTO updateTask(String project_id, Integer task_id, TaskUpdateDTO taskUpdateDTO) {
         ProjectTaskId id = new ProjectTaskId(project_id, task_id);
         Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
@@ -80,5 +101,10 @@ public class TaskService {
 
         Task taskRes = taskRepository.save(task);
         return taskMapper.toDTO(taskRes);
+    }
+
+    public void deleteTask(String project_id, Integer task_id) {
+        ProjectTaskId id = new ProjectTaskId(project_id, task_id);
+        taskRepository.deleteById(id);
     }
 }
