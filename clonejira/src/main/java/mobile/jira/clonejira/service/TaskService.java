@@ -1,8 +1,6 @@
 package mobile.jira.clonejira.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import mobile.jira.clonejira.dto.*;
@@ -61,12 +59,34 @@ public class TaskService {
                 .toList();
     }
 
-    public List<TaskDTO> getTasksByProject(String project_id){
-        List<Task> tasks = taskRepository.findTaskByProjId(project_id);
+    public List<TaskAssigneeGroupDTO> getTasksByProject(String project_id){
+        List<Object[]> tasks = taskRepository.findTaskByProjId(project_id);
 
-        return tasks.stream()
-        .map(taskMapper::toDTO)
-        .toList();
+        List<TaskAssigneeDTO> taskAssignments = tasks.stream().map(item -> {
+            TaskDTO task = taskMapper.toDTO((Task) item[0]);
+            UserDTO user = userMapper.toDTO((User) item[1]);
+
+            TaskAssigneeDTO taskAssign = new TaskAssigneeDTO();
+            taskAssign.setTask(task);
+            taskAssign.setMember(user);
+            return taskAssign;
+        }).toList();
+
+        List<TaskAssigneeGroupDTO> taskGroup = taskAssignments.stream()
+                // 1. Gom nhóm
+                .collect(Collectors.groupingBy(
+                        item -> item.getTask(),
+                        Collectors.mapping(TaskAssigneeDTO::getMember, Collectors.toList())
+                ))
+                .entrySet().stream()
+                .map(entry -> {
+                   TaskAssigneeGroupDTO groupDTO = new TaskAssigneeGroupDTO();
+                   groupDTO.setTask(entry.getKey());
+                   groupDTO.setMembers(entry.getValue());
+                   return groupDTO;
+                } ).toList();
+
+        return taskGroup;
     }
 
     public TaskDTO getTaskById(String project_id, Integer task_id){
