@@ -1,9 +1,6 @@
 package mobile.jira.clonejira.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 import java.util.UUID;
@@ -16,7 +13,8 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name= "users")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

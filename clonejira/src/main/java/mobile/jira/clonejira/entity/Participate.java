@@ -8,16 +8,14 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import mobile.jira.clonejira.entity.key.ProjectMemberId;
 import mobile.jira.clonejira.enums.ProjectRole;
 import mobile.jira.clonejira.enums.converter.ProjectRoleConverter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "participate")
 @NoArgsConstructor
 @AllArgsConstructor

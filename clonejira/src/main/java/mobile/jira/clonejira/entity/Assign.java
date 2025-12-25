@@ -1,15 +1,13 @@
 package mobile.jira.clonejira.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import mobile.jira.clonejira.entity.key.TaskAssigneeId;
 
 @Entity
 @Table(name = "assign")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

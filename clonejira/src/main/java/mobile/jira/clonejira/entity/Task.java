@@ -16,7 +16,8 @@ import mobile.jira.clonejira.enums.TaskStatus;
 import mobile.jira.clonejira.enums.converter.TaskStatusConverter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "tasks")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
