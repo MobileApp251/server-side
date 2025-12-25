@@ -1,6 +1,7 @@
-package mobile.jira.clonejira.dto;
+package mobile.jira.clonejira.dto.task;
 
 import lombok.Data;
+import mobile.jira.clonejira.dto.auth.UserDTO;
 
 import java.util.List;
 

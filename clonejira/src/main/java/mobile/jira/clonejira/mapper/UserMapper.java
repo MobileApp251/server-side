@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 
-import mobile.jira.clonejira.dto.UserDTO;
+import mobile.jira.clonejira.dto.auth.UserDTO;
 import mobile.jira.clonejira.entity.User;
 
 @Mapper(componentModel = "spring")

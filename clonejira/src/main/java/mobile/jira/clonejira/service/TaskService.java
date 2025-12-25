@@ -3,7 +3,8 @@ package mobile.jira.clonejira.service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import mobile.jira.clonejira.dto.*;
+import mobile.jira.clonejira.dto.auth.UserDTO;
+import mobile.jira.clonejira.dto.task.*;
 import mobile.jira.clonejira.repository.ProjectRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
@@ -73,7 +74,6 @@ public class TaskService {
         }).toList();
 
         List<TaskAssigneeGroupDTO> taskGroup = taskAssignments.stream()
-                // 1. Gom nhóm
                 .collect(Collectors.groupingBy(
                         item -> item.getTask(),
                         Collectors.mapping(TaskAssigneeDTO::getMember, Collectors.toList())

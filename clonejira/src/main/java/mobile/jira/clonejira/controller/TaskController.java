@@ -1,10 +1,9 @@
 package mobile.jira.clonejira.controller;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import mobile.jira.clonejira.dto.TaskUpdateDTO;
+import mobile.jira.clonejira.dto.task.TaskUpdateDTO;
 import mobile.jira.clonejira.entity.Project;
 import mobile.jira.clonejira.repository.ProjectRepository;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +12,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import mobile.jira.clonejira.service.TaskService;
-import mobile.jira.clonejira.dto.TaskCreateDTO;
-import mobile.jira.clonejira.dto.TaskDTO;
+import mobile.jira.clonejira.dto.task.TaskCreateDTO;
+import mobile.jira.clonejira.dto.task.TaskDTO;
 
 @RestController
 @RequestMapping("/api/tasks")

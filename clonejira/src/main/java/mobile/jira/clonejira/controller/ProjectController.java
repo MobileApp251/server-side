@@ -2,8 +2,7 @@ package mobile.jira.clonejira.controller;
 
 import java.util.List;
 
-import mobile.jira.clonejira.dto.*;
-import org.springframework.data.domain.Sort;
+import mobile.jira.clonejira.dto.project.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -62,7 +61,7 @@ public class ProjectController {
 
             System.out.print("User with id: ");
             System.out.println(uid);
-            List<ProjectDTO> projects = projectService.getAllMyProjects(uid, page, size, sortBy, sortDir);
+            List<ProjectParticipantGroupDTO> projects = projectService.getAllMyProjects(uid, page, size, sortBy, sortDir);
             System.out.print("Project Fetch: ");
             System.out.println(projects.size());
             return ResponseEntity.ok(projects);

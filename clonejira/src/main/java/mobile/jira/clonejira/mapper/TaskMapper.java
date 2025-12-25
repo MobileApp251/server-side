@@ -1,11 +1,11 @@
 package mobile.jira.clonejira.mapper;
 
-import mobile.jira.clonejira.dto.TaskUpdateDTO;
+import mobile.jira.clonejira.dto.task.TaskUpdateDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 
-import mobile.jira.clonejira.dto.TaskDTO;
+import mobile.jira.clonejira.dto.task.TaskDTO;
 import mobile.jira.clonejira.entity.Task;
 
 @Mapper(componentModel = "spring")

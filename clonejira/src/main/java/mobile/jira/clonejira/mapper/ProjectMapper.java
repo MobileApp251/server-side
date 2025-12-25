@@ -1,13 +1,12 @@
 package mobile.jira.clonejira.mapper;
 
-import mobile.jira.clonejira.dto.ProjectMemberDTO;
-import mobile.jira.clonejira.dto.ProjectUpdateDTO;
+import mobile.jira.clonejira.dto.project.ProjectMemberDTO;
+import mobile.jira.clonejira.dto.project.ProjectUpdateDTO;
 import mobile.jira.clonejira.entity.ProjectMember;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
-import org.springframework.stereotype.Component;
 
-import mobile.jira.clonejira.dto.ProjectDTO;
+import mobile.jira.clonejira.dto.project.ProjectDTO;
 import mobile.jira.clonejira.entity.Project;
 
 @Mapper(componentModel = "spring")

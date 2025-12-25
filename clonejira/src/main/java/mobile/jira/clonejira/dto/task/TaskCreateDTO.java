@@ -1,4 +1,4 @@
-package mobile.jira.clonejira.dto;
+package mobile.jira.clonejira.dto.task;
 
 import java.time.Instant;
 

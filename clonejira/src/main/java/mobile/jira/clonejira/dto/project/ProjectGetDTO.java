@@ -1,7 +1,6 @@
-package mobile.jira.clonejira.dto;
+package mobile.jira.clonejira.dto.project;
 
 import lombok.Data;
-import mobile.jira.clonejira.entity.ProjectMember;
 
 import java.util.List;
 
