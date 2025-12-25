@@ -59,6 +59,6 @@ public class Task {
     @JoinColumn(name = "proj_id", insertable = false, updatable = false)
     private Project project;
 
-    @OneToMany(mappedBy = "task")
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Assign> assignments;
 }

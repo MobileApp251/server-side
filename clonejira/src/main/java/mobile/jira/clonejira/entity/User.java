@@ -33,10 +33,10 @@ public class User {
 
     private String password;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Participate> participates;
 
-    @OneToMany(mappedBy = "assignee")
+    @OneToMany(mappedBy = "assignee", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Assign> tasks;
 
     @PrePersist

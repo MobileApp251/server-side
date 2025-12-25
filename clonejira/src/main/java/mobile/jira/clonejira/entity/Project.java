@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
@@ -11,12 +12,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -58,9 +53,9 @@ public class Project {
     @Column(name = "isDone")
     private boolean isDone;
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Task> tasks;
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project",  cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Participate> members;
 }

@@ -61,7 +61,7 @@ public class TaskService {
     }
 
     public List<TaskAssigneeGroupDTO> getTasksByProject(String project_id){
-        List<Object[]> tasks = taskRepository.findTaskByProjId(project_id);
+        List<Object[]> tasks = taskRepository.findTaskByProjIdWithAssignee(project_id);
 
         List<TaskAssigneeDTO> taskAssignments = tasks.stream().map(item -> {
             TaskDTO task = taskMapper.toDTO((Task) item[0]);
@@ -87,6 +87,10 @@ public class TaskService {
                 } ).toList();
 
         return taskGroup;
+    }
+
+    public List<TaskDTO> getAllTasksByProject(String project_id){
+        return taskRepository.findTaskByProjId(project_id).stream().map(taskMapper::toDTO).toList();
     }
 
     public TaskDTO getTaskById(String project_id, Integer task_id){

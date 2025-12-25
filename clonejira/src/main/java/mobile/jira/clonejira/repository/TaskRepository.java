@@ -26,7 +26,12 @@ public interface TaskRepository extends JpaRepository<Task, ProjectTaskId> {
         "join Assign a on a.task.id = t.id " +
         "WHERE t.id.proj_id = :project_id"
     )
-    List<Object[]> findTaskByProjId(@Param("project_id") String project_id);
+    List<Object[]> findTaskByProjIdWithAssignee(@Param("project_id") String project_id);
+
+    @Query(
+            "SELECT t FROM Task t " + "WHERE t.id.proj_id = :project_id"
+    )
+    List<Task> findTaskByProjId(@Param("project_id") String project_id);
 
     @Query(
         "select t from Task t " +

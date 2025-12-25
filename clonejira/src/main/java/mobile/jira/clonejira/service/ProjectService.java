@@ -26,6 +26,7 @@ import mobile.jira.clonejira.mapper.*;
 import mobile.jira.clonejira.repository.ParticipateRepository;
 import mobile.jira.clonejira.repository.ProjectRepository;
 import mobile.jira.clonejira.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -117,7 +118,12 @@ public class ProjectService {
         return mapper.toDTO(projectRes);
     }
 
+    @Transactional
     public void deleteProject(String project_id) {
+
+        if (!projectRepository.existsById(UUID.fromString(project_id))) {
+            throw new IllegalArgumentException("Project not found!");
+        }
         projectRepository.deleteById(UUID.fromString(project_id));
     }
 }

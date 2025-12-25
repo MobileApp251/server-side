@@ -76,7 +76,7 @@ public class TaskController {
         @PathVariable("project_id") String project_id
     ){
         try {
-            return ResponseEntity.ok(taskService.getTasksByProject(project_id));
+            return ResponseEntity.ok(taskService.getAllTasksByProject(project_id));
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal Error");
         }
