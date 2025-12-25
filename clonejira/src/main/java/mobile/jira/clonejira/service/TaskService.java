@@ -3,6 +3,7 @@ package mobile.jira.clonejira.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import mobile.jira.clonejira.dto.*;
 import mobile.jira.clonejira.repository.ProjectRepository;
@@ -75,23 +76,10 @@ public class TaskService {
         return taskMapper.toDTO(task);
     }
 
-    public List<TaskAssigneeDTO> getAllTasksByAssignee(String project_id, String uid){
-        List<Object[]> tasks = taskRepository.findAllByAssignee(UUID.fromString(project_id), UUID.fromString(uid));
+    public List<TaskDTO> getAllTasksByAssignee(String project_id, String uid){
+        List<Task> tasks = taskRepository.findAllByAssignee(UUID.fromString(project_id), UUID.fromString(uid));
 
-        List<TaskAssigneeDTO> dtos = tasks.stream().map(row -> {
-            Task task = (Task) row[0];
-            User user = (User) row[1];
-            TaskDTO dto = taskMapper.toDTO(task);
-            UserDTO member = userMapper.toDTO(user);
-
-            TaskAssigneeDTO assigneeDTO = new TaskAssigneeDTO();
-            assigneeDTO.setTask(dto);
-            assigneeDTO.setMember(member);
-
-            return assigneeDTO;
-        }).toList() ;
-
-        return dtos;
+        return tasks.stream().map(taskMapper::toDTO).toList();
     }
 
     public TaskDTO updateTask(String project_id, Integer task_id, TaskUpdateDTO taskUpdateDTO) {
