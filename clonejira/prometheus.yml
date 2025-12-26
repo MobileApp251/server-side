@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s # Quét dữ liệu mỗi 15 giây
+
+scrape_configs:
+  - job_name: 'jira-clone-backend'
+    metrics_path: '/actuator/prometheus'
+    scheme: https
+    static_configs:
+      # Dùng host.docker.internal để Docker container gọi được về máy host (Spring Boot đang chạy)
+      - targets: ['server-side-vp3t.onrender.com']

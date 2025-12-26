@@ -2,8 +2,7 @@ package mobile.jira.clonejira.controller;
 
 import java.util.List;
 
-import mobile.jira.clonejira.dto.*;
-import org.springframework.data.domain.Sort;
+import mobile.jira.clonejira.dto.project.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -62,7 +61,7 @@ public class ProjectController {
 
             System.out.print("User with id: ");
             System.out.println(uid);
-            List<ProjectDTO> projects = projectService.getAllMyProjects(uid, page, size, sortBy, sortDir);
+            List<ProjectParticipantGroupDTO> projects = projectService.getAllMyProjects(uid, page, size, sortBy, sortDir);
             System.out.print("Project Fetch: ");
             System.out.println(projects.size());
             return ResponseEntity.ok(projects);
@@ -87,13 +86,25 @@ public class ProjectController {
 
     @PatchMapping("/{project_id}")
     public ResponseEntity<?> updateProjectById(
-            @PathVariable("project_id") String project_id,
-            @RequestBody ProjectUpdateDTO dto
+        @PathVariable("project_id") String project_id,
+        @RequestBody ProjectUpdateDTO dto
     ){
         try {
             return ResponseEntity.ok(projectService.updateProject(project_id, dto));
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal Error!");
+        }
+    }
+
+    @DeleteMapping("/{project_id}")
+    public ResponseEntity<?> deleteProjectById(
+        @PathVariable("project_id") String project_id
+    ){
+        try {
+            projectService.deleteProject(project_id);
+            return ResponseEntity.ok("Delete Project successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 }

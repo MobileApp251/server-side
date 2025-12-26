@@ -7,7 +7,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import mobile.jira.clonejira.dto.UserDTO;
+import mobile.jira.clonejira.dto.auth.UserDTO;
 import mobile.jira.clonejira.entity.User;
 import mobile.jira.clonejira.mapper.*;
 import mobile.jira.clonejira.repository.UserRepository;

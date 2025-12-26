@@ -1,4 +1,4 @@
-package mobile.jira.clonejira.dto;
+package mobile.jira.clonejira.dto.auth;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;

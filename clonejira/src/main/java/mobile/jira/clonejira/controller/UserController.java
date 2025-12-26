@@ -10,7 +10,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
-import mobile.jira.clonejira.dto.UserDTO;
+import mobile.jira.clonejira.dto.auth.UserDTO;
 import mobile.jira.clonejira.service.UserService;
 
 @RestController

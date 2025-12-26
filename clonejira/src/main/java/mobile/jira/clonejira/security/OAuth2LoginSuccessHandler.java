@@ -13,7 +13,7 @@ import java.util.Optional;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
-import mobile.jira.clonejira.dto.UserDTO;
+import mobile.jira.clonejira.dto.auth.UserDTO;
 import mobile.jira.clonejira.service.UserService;
 
 @Component

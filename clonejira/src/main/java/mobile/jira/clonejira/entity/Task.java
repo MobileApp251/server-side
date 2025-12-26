@@ -1,6 +1,7 @@
 package mobile.jira.clonejira.entity;
 
 import java.time.Instant;
+import java.util.Set;
 
 import mobile.jira.clonejira.enums.TaskPriority;
 import mobile.jira.clonejira.enums.converter.TaskPriorityConverter;
@@ -15,7 +16,8 @@ import mobile.jira.clonejira.enums.TaskStatus;
 import mobile.jira.clonejira.enums.converter.TaskStatusConverter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "tasks")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
@@ -57,4 +59,7 @@ public class Task {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proj_id", insertable = false, updatable = false)
     private Project project;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Assign> assignments;
 }

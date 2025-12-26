@@ -1,13 +1,16 @@
 package mobile.jira.clonejira.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import mobile.jira.clonejira.dto.*;
+import mobile.jira.clonejira.dto.auth.UserDTO;
+import mobile.jira.clonejira.dto.project.*;
 import mobile.jira.clonejira.entity.ProjectMember;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,10 +22,11 @@ import mobile.jira.clonejira.entity.Project;
 import mobile.jira.clonejira.entity.User;
 import mobile.jira.clonejira.entity.key.ProjectMemberId;
 import mobile.jira.clonejira.enums.ProjectRole;
-import mobile.jira.clonejira.mapper.ProjectMapper;
+import mobile.jira.clonejira.mapper.*;
 import mobile.jira.clonejira.repository.ParticipateRepository;
 import mobile.jira.clonejira.repository.ProjectRepository;
 import mobile.jira.clonejira.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,7 @@ public class ProjectService {
     private final ParticipateRepository participateRepository;
     private final UserRepository userRepository;
     private final ProjectMapper mapper;
+    private final UserMapper userMapper;
 
     public void joinProject(String uid, String proj_id, String role) {
         ProjectMemberId id = new ProjectMemberId(uid, proj_id);
@@ -58,7 +63,7 @@ public class ProjectService {
         return mapper.toDTO(newProject);
     }
 
-    public List<ProjectDTO> getAllMyProjects(String uid, int page, int size, String sortBy, String sortDir) throws BadRequestException {
+    public List<ProjectParticipantGroupDTO> getAllMyProjects(String uid, int page, int size, String sortBy, String sortDir) throws BadRequestException {
 
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
                 ? Sort.by(sortBy).ascending()
@@ -69,9 +74,26 @@ public class ProjectService {
 
         if (user.isEmpty()) throw new BadRequestException("User not found!");
 
-        return projectRepository
-            .findAllMyProjects(UUID.fromString(uid), pageable).stream()
-            .map(mapper::toDTO).toList();
+        List<Object[]> listProjects = projectRepository
+            .findAllMyProjects(UUID.fromString(uid), pageable).stream().toList();
+
+        List<ProjectParticipantDTO> projectsWithParticipants = listProjects.stream()
+                .map(item -> {
+                    ProjectDTO dto = mapper.toDTO((Project) item[0]);
+                    UserDTO userDTO = userMapper.toDTO((User) item[1]);
+
+                    return new ProjectParticipantDTO(dto, userDTO);
+                }).toList();
+
+        List<ProjectParticipantGroupDTO> pRes = projectsWithParticipants.stream()
+                .collect(Collectors.groupingBy(
+                        item -> item.getProject(),
+                        Collectors.mapping(ProjectParticipantDTO::getMember,Collectors.toList())
+                )).entrySet().stream()
+                .map(item -> new ProjectParticipantGroupDTO(item.getKey(), item.getValue()))
+                .toList();
+
+        return pRes;
     }
 
     public ProjectGetDTO getProjectById(String proj_id) throws BadRequestException {
@@ -94,5 +116,14 @@ public class ProjectService {
         mapper.updateProject(dto, project);
         Project projectRes = projectRepository.save(project);
         return mapper.toDTO(projectRes);
+    }
+
+    @Transactional
+    public void deleteProject(String project_id) {
+
+        if (!projectRepository.existsById(UUID.fromString(project_id))) {
+            throw new IllegalArgumentException("Project not found!");
+        }
+        projectRepository.deleteById(UUID.fromString(project_id));
     }
 }

@@ -1,9 +1,6 @@
 package mobile.jira.clonejira.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 import java.util.UUID;
@@ -16,7 +13,8 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name= "users")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -33,8 +31,11 @@ public class User {
 
     private String password;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Participate> participates;
+
+    @OneToMany(mappedBy = "assignee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Assign> tasks;
 
     @PrePersist
     private void usernameGenerator() {

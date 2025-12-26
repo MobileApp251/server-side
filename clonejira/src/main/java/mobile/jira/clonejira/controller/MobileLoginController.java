@@ -1,7 +1,7 @@
 package mobile.jira.clonejira.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import mobile.jira.clonejira.dto.LoginDTO;
+import mobile.jira.clonejira.dto.auth.LoginDTO;
 import mobile.jira.clonejira.entity.User;
 import mobile.jira.clonejira.mapper.UserMapper;
 import mobile.jira.clonejira.repository.UserRepository;
@@ -17,8 +17,8 @@ import com.google.api.client.json.gson.GsonFactory;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import lombok.RequiredArgsConstructor;
-import mobile.jira.clonejira.dto.AccessTokenDTO;
-import mobile.jira.clonejira.dto.UserDTO;
+import mobile.jira.clonejira.dto.auth.AccessTokenDTO;
+import mobile.jira.clonejira.dto.auth.UserDTO;
 import mobile.jira.clonejira.security.JwtTokenProvider;
 import mobile.jira.clonejira.service.UserService;
 
@@ -32,7 +32,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 @RestController
 @RequestMapping("auth")
@@ -158,7 +157,7 @@ public class MobileLoginController {
 
             return ResponseEntity.ok(new AccessTokenDTO(jwtToken));
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("Sign up failed!");
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 

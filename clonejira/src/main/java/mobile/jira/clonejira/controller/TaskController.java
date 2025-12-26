@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import mobile.jira.clonejira.dto.TaskUpdateDTO;
+import mobile.jira.clonejira.dto.task.TaskAssigneeGroupDTO;
+import mobile.jira.clonejira.dto.task.TaskUpdateDTO;
 import mobile.jira.clonejira.entity.Project;
 import mobile.jira.clonejira.repository.ProjectRepository;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +14,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import mobile.jira.clonejira.service.TaskService;
-import mobile.jira.clonejira.dto.TaskCreateDTO;
-import mobile.jira.clonejira.dto.TaskDTO;
+import mobile.jira.clonejira.dto.task.TaskCreateDTO;
+import mobile.jira.clonejira.dto.task.TaskDTO;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -74,10 +74,26 @@ public class TaskController {
     }
 
     @GetMapping("/{project_id}")
-    public ResponseEntity<List<TaskDTO>> getTasksByProject(
+    public ResponseEntity<?> getTasksByProject(
         @PathVariable("project_id") String project_id
     ){
-        return ResponseEntity.ok(taskService.getTasksByProject(project_id));
+        try {
+            return ResponseEntity.ok(taskService.getAllTasksByProject(project_id));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/assignee/{project_id}/{uid}")
+    public ResponseEntity<?> getTasksByProjectNUser(
+            @PathVariable("project_id") String project_id,
+            @PathVariable("uid") String uid
+    ){
+        try {
+            return ResponseEntity.ok(taskService.getAllTasksByAssignee(project_id, uid));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Error");
+        }
     }
 
     @GetMapping("/{project_id}/{task_id}")
@@ -100,8 +116,27 @@ public class TaskController {
         }
     }
 
+    @GetMapping("/task-assignee/{project_id}")
+    public ResponseEntity<?> getTaskByProjectWithAssignees(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable("project_id") String project_id
+    ){
+        try {
+            String uid = user.getUsername();
+            Optional<Project> checkProject =  projectRepository.findProjectByUid(UUID.fromString(uid), UUID.fromString(project_id));
+            if (checkProject.isEmpty()) {
+                return ResponseEntity.status(400).body("User is not present in project!");
+            }
+            List<TaskAssigneeGroupDTO> taskDTO = taskService.getTasksByProject(project_id);
+
+            return ResponseEntity.ok(taskDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
     @PatchMapping("/{project_id}/{task_id}")
-    ResponseEntity<?> updateTask(
+    public ResponseEntity<?> updateTask(
         @AuthenticationPrincipal UserDetails user,
         @PathVariable("project_id") String project_id,
         @PathVariable("task_id") Integer task_id,
@@ -117,6 +152,19 @@ public class TaskController {
             return ResponseEntity.ok(taskUpdate);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal Error!");
+        }
+    }
+
+    @DeleteMapping("/{project_id}/{task_id}")
+    public ResponseEntity<?> deleteTask(
+        @PathVariable("project_id") String project_id,
+        @PathVariable("task_id") Integer task_id
+    ){
+        try {
+            taskService.deleteTask(project_id, task_id);
+            return ResponseEntity.ok("Delete Task Successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 }
