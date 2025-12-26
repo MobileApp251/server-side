@@ -71,6 +71,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch(Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Filter Error: " + e.getMessage());
+            return;
         }
         System.out.println("Done");
         filterChain.doFilter(request, response);

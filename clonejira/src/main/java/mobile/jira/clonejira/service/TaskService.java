@@ -116,7 +116,13 @@ public class TaskService {
     }
 
     public void deleteTask(String project_id, Integer task_id) {
-        ProjectTaskId id = new ProjectTaskId(project_id, task_id);
-        taskRepository.deleteById(id);
+        try {
+            ProjectTaskId id = new ProjectTaskId(project_id, task_id);
+            taskRepository.deleteById(id);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+
     }
 }
