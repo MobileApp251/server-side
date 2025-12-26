@@ -56,6 +56,15 @@ springdoc:
     config-url: /v3/api-docs/swagger-config
     disable-swagger-default-url: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  endpoint:
+    health:
+      show-details: always
+
 server:
   forward-headers-strategy: framework
   port: 8081
