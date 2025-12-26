@@ -33,3 +33,6 @@ build/
 .vscode/
 # Loại trừ file SQL database
 jira-mobile.sql
+
+# Loại trừ file README.md
+README.md
