@@ -89,8 +89,20 @@ public class TaskService {
         return taskGroup;
     }
 
-    public List<TaskDTO> getAllTasksByProject(String project_id){
-        return taskRepository.findTaskByProjId(project_id).stream().map(taskMapper::toDTO).toList();
+    public List<TaskAssigneeGroupDTO> getAllTasksByProject(String project_id){
+        List<TaskAssigneeGroupDTO> taskAssigneeGroupDTOS = this.getTasksByProject(project_id);
+        List<TaskDTO> taskDTOs = taskRepository.findTaskByProjId(project_id).stream().map(taskMapper::toDTO).toList();
+        List<TaskAssigneeGroupDTO> taskRes = taskDTOs.stream()
+                .map(item -> {
+                    List<List<UserDTO>> members = taskAssigneeGroupDTOS.stream().filter(it -> it.getTask().equals(item))
+                            .map(it -> it.getMembers()).toList();
+
+                    TaskDTO task = item;
+
+                    return new TaskAssigneeGroupDTO(task, members.size() == 0 ? Collections.emptyList() : members.get(0));
+                }).toList();
+
+        return taskRes;
     }
 
     public TaskDTO getTaskById(String project_id, Integer task_id){

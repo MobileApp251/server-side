@@ -1,8 +1,10 @@
 package mobile.jira.clonejira.controller;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import mobile.jira.clonejira.dto.task.TaskAssigneeGroupDTO;
 import mobile.jira.clonejira.dto.task.TaskUpdateDTO;
 import mobile.jira.clonejira.entity.Project;
 import mobile.jira.clonejira.repository.ProjectRepository;
@@ -78,7 +80,7 @@ public class TaskController {
         try {
             return ResponseEntity.ok(taskService.getAllTasksByProject(project_id));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Internal Error");
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
@@ -111,6 +113,25 @@ public class TaskController {
             return ResponseEntity.ok(taskDTO);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal Error!");
+        }
+    }
+
+    @GetMapping("/task-assignee/{project_id}")
+    public ResponseEntity<?> getTaskByProjectWithAssignees(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable("project_id") String project_id
+    ){
+        try {
+            String uid = user.getUsername();
+            Optional<Project> checkProject =  projectRepository.findProjectByUid(UUID.fromString(uid), UUID.fromString(project_id));
+            if (checkProject.isEmpty()) {
+                return ResponseEntity.status(400).body("User is not present in project!");
+            }
+            List<TaskAssigneeGroupDTO> taskDTO = taskService.getTasksByProject(project_id);
+
+            return ResponseEntity.ok(taskDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
