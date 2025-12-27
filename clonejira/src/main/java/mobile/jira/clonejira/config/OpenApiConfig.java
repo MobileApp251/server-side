@@ -11,7 +11,8 @@ import org.springframework.context.annotation.Configuration;
 @OpenAPIDefinition(
     info = @Info(title = "Jira Clone API", version = "v1"),
     servers = {
-        @Server(url = "/", description = "Default Server URL") 
+        @Server(url = "/", description = "Default Server URL"),
+        @Server(url = "/api/java", description = "Gateway Default Server URL")
     }
 )
 @SecurityScheme(
