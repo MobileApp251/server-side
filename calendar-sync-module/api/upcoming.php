@@ -4,8 +4,9 @@
  * Endpoint: GET /api/upcoming.php
  * 
  * Query Parameters:
- * - days: number of days to look ahead (default: 3)
- * - user_id: UUID (optional)
+ * - days: number of days to look ahead (default: 7)
+ * - uid: User ID (optional)
+ * - proj_id: Project ID (optional)
  */
 
 header('Content-Type: application/json');
@@ -24,10 +25,11 @@ require_once __DIR__ . '/../utils/Response.php';
 try {
     $eventModel = new CalendarEvent();
     
-    $days = isset($_GET['days']) ? (int)$_GET['days'] : 3;
+    $days = isset($_GET['days']) ? (int)$_GET['days'] : 7;
     $uid = $_GET['uid'] ?? null;
+    $projId = $_GET['proj_id'] ?? null;
     
-    $tasks = $eventModel->getUpcomingTasks($days, $uid);
+    $tasks = $eventModel->getUpcomingTasks($days, $uid, $projId);
     
     Response::success($tasks);
     

@@ -39,84 +39,134 @@
         
         <h2>🚀 Quick Start</h2>
         <ol>
-            <li>Import <code>database/schema.sql</code> vào phpMyAdmin</li>
-            <li>Cấu hình <code>config/config.php</code></li>
+            <li>Không cần import schema - Module query trực tiếp từ bảng tasks có sẵn</li>
+            <li>Đảm bảo database Railway đã có các bảng: tasks, projects, users, task_assignees</li>
             <li>Start PHP server: <code>php -S localhost:8000</code></li>
-            <li>Test API: <code>http://localhost:8000/api/events.php</code></li>
+            <li>Test API: <code>http://localhost:8000/api/statistics.php</code></li>
         </ol>
 
         <h2>📡 API Endpoints</h2>
 
         <div class="endpoint">
-            <h3><span class="method get">GET</span> /api/events.php</h3>
-            <p>Get calendar events with filters</p>
+            <h3><span class="method get">GET</span> /api/statistics.php</h3>
+            <p>Get statistics for tasks (total, completed, in progress, etc.)</p>
             <p><strong>Query Parameters:</strong></p>
             <ul>
-                <li><code>status</code> - Filter by status (comma-separated)</li>
+                <li><code>proj_id</code> - Project ID (optional, if not provided returns all tasks)</li>
+            </ul>
+            <pre>curl "http://localhost:8000/api/statistics.php?proj_id=your-project-id"</pre>
+        </div>
+
+        <div class="endpoint">
+            <h3><span class="method get">GET</span> /api/events.php</h3>
+            <p>Get tasks with filters (calendar events)</p>
+            <p><strong>Query Parameters:</strong></p>
+            <ul>
+                <li><code>status</code> - Filter by status: open, progress, done, reopen, close (comma-separated)</li>
                 <li><code>start_date</code> - Start date (YYYY-MM-DD)</li>
                 <li><code>end_date</code> - End date (YYYY-MM-DD)</li>
-                <li><code>project_id</code> - Project UUID</li>
-                <li><code>priority</code> - Priority filter (high,medium,low)</li>
+                <li><code>proj_id</code> - Project ID</li>
+                <li><code>priority</code> - Priority filter: high, medium, low (comma-separated)</li>
+                <li><code>uid</code> - User ID (filter by assignee)</li>
             </ul>
-            <pre>curl "http://localhost:8000/api/events.php?status=in_progress,done"</pre>
+            <pre>curl "http://localhost:8000/api/events.php?status=progress,open&proj_id=your-project-id"</pre>
         </div>
 
         <div class="endpoint">
             <h3><span class="method get">GET</span> /api/calendar.php</h3>
-            <p>Get events by date range (calendar view)</p>
-            <p><strong>Required Parameters:</strong> start_date, end_date</p>
+            <p>Get tasks by date range (calendar view)</p>
+            <p><strong>Required Parameters:</strong></p>
+            <ul>
+                <li><code>start_date</code> - Start date (YYYY-MM-DD)</li>
+                <li><code>end_date</code> - End date (YYYY-MM-DD)</li>
+            </ul>
+            <p><strong>Optional Parameters:</strong></p>
+            <ul>
+                <li><code>proj_id</code> - Project ID</li>
+            </ul>
             <pre>curl "http://localhost:8000/api/calendar.php?start_date=2025-08-01&end_date=2025-08-31"</pre>
         </div>
 
         <div class="endpoint">
             <h3><span class="method get">GET</span> /api/upcoming.php</h3>
-            <p>Get upcoming tasks (due soon)</p>
-            <p><strong>Parameters:</strong> days (default: 3)</p>
-            <pre>curl "http://localhost:8000/api/upcoming.php?days=7"</pre>
+            <p>Get upcoming tasks (due soon, status: open/progress/reopen)</p>
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>days</code> - Number of days to look ahead (default: 7)</li>
+                <li><code>uid</code> - User ID (filter by assignee)</li>
+                <li><code>proj_id</code> - Project ID</li>
+            </ul>
+            <pre>curl "http://localhost:8000/api/upcoming.php?days=7&uid=your-user-id"</pre>
         </div>
 
         <div class="endpoint">
             <h3><span class="method get">GET</span> /api/overdue.php</h3>
-            <p>Get overdue tasks</p>
-            <pre>curl "http://localhost:8000/api/overdue.php"</pre>
+            <p>Get overdue tasks (not done/close but past end date)</p>
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>uid</code> - User ID (filter by assignee)</li>
+                <li><code>proj_id</code> - Project ID</li>
+            </ul>
+            <pre>curl "http://localhost:8000/api/overdue.php?proj_id=your-project-id"</pre>
         </div>
 
         <div class="endpoint">
-            <h3><span class="method get">GET</span> <span class="method post">POST</span> <span class="method put">PUT</span> /api/notifications.php</h3>
-            <p>Manage user notifications</p>
-            <p><strong>GET:</strong> user_id, limit, unread_only</p>
-            <p><strong>POST:</strong> Create new notification</p>
-            <p><strong>PUT:</strong> Mark as read</p>
+            <h3><span class="method get">GET</span> /api/user-tasks.php</h3>
+            <p>Get all tasks assigned to a specific user</p>
+            <p><strong>Required Parameters:</strong></p>
+            <ul>
+                <li><code>uid</code> - User ID</li>
+            </ul>
+            <p><strong>Optional Parameters:</strong></p>
+            <ul>
+                <li><code>proj_id</code> - Project ID (filter by project)</li>
+            </ul>
+            <pre>curl "http://localhost:8000/api/user-tasks.php?uid=your-user-id"</pre>
         </div>
 
         <div class="endpoint">
-            <h3><span class="method get">GET</span> <span class="method post">POST</span> <span class="method put">PUT</span> <span class="method delete">DELETE</span> /api/issues.php</h3>
-            <p>Task issues CRUD operations</p>
+            <h3><span class="method get">GET</span> /api/project-tasks.php</h3>
+            <p>Get all tasks in a project with assignees</p>
+            <p><strong>Required Parameters:</strong></p>
+            <ul>
+                <li><code>proj_id</code> - Project ID</li>
+            </ul>
+            <pre>curl "http://localhost:8000/api/project-tasks.php?proj_id=your-project-id"</pre>
         </div>
 
-        <div class="endpoint">
-            <h3><span class="method get">GET</span> /api/statistics.php</h3>
-            <p>Get statistics for events and issues</p>
-            <pre>curl "http://localhost:8000/api/statistics.php?project_id=UUID"</pre>
-        </div>
-
-        <h2>🎨 Status Values</h2>
+        <h2>🎨 Status Values (From Java Enum)</h2>
         <div>
+            <span class="status-badge status-upcoming">open</span>
+            <span class="status-badge status-progress">progress</span>
             <span class="status-badge status-done">done</span>
-            <span class="status-badge status-progress">in_progress</span>
-            <span class="status-badge status-due">due</span>
-            <span class="status-badge status-upcoming">upcoming</span>
+            <span class="status-badge status-upcoming">reopen</span>
+            <span class="status-badge">close</span>
+        </div>
+
+        <h2>📊 Priority Values (From Java Enum)</h2>
+        <div>
+            <span class="status-badge status-due">high</span>
+            <span class="status-badge status-progress">medium</span>
+            <span class="status-badge">low</span>
         </div>
 
         <h2>📚 Documentation</h2>
-        <p>Xem file <code>README.md</code> để biết thêm chi tiết về cài đặt, cấu hình và sử dụng.</p>
-
-        <h2>🔗 Resources</h2>
+        <p>Module này query <strong>trực tiếp từ các bảng có sẵn</strong>:</p>
         <ul>
-            <li>Database Schema: <code>database/schema.sql</code></li>
-            <li>Sample Data: <code>database/seed.sql</code></li>
-            <li>Config: <code>config/config.php</code></li>
+            <li><code>tasks</code> - Dữ liệu task từ Java application</li>
+            <li><code>projects</code> - Thông tin project</li>
+            <li><code>users</code> - Thông tin user</li>
+            <li><code>task_assignees</code> - Quan hệ assignee</li>
         </ul>
+        <p><strong>Không cần tạo bảng mới!</strong> Tất cả APIs đều query từ bảng Java có sẵn.</p>
+
+        <h2>🔗 Response Format</h2>
+        <p>Tất cả APIs trả về JSON format:</p>
+        <pre>{
+  "success": true,
+  "data": [...],
+  "message": "Success"
+}</pre>
     </div>
 </body>
 </html>

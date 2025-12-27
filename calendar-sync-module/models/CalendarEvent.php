@@ -14,7 +14,7 @@ class CalendarEvent {
     
     /**
      * Get all calendar events with optional filters
-     * Note: This queries the tasks table directly and joins with calendar_events
+     * Queries directly from tasks table - no additional tables needed
      */
     public function getEvents($filters = []) {
         $sql = "SELECT 
@@ -28,11 +28,9 @@ class CalendarEvent {
                     t.priority,
                     t.createAt,
                     t.updateAt,
-                    ce.sync_status,
-                    ce.calendar_notes,
-                    ce.last_sync_at
+                    p.proj_name
                 FROM tasks t
-                LEFT JOIN calendar_events ce ON t.proj_id = ce.proj_id AND t.task_id = ce.task_id
+                LEFT JOIN projects p ON t.proj_id = p.proj_id
                 WHERE 1=1";
         $params = [];
         
@@ -70,6 +68,7 @@ class CalendarEvent {
     
     /**
      * Get events by date range for calendar view
+     * Queries directly from tasks table
      */
     public function getEventsByDateRange($startDate, $endDate, $projId = null) {
         $sql = "SELECT 
@@ -81,10 +80,11 @@ class CalendarEvent {
                     t.endAt,
                     t.status,
                     t.priority,
-                    ce.sync_status,
-                    ce.calendar_notes
+                    t.createAt,
+                    t.updateAt,
+                    p.proj_name
                 FROM tasks t
-                LEFT JOIN calendar_events ce ON t.proj_id = ce.proj_id AND t.task_id = ce.task_id
+                LEFT JOIN projects p ON t.proj_id = p.proj_id
                 WHERE (t.startAt BETWEEN ? AND ?) 
                    OR (t.endAt BETWEEN ? AND ?)
                    OR (t.startAt <= ? AND t.endAt >= ?)";
@@ -105,7 +105,7 @@ class CalendarEvent {
      * Get upcoming tasks (due soon)
      * Status: open, progress, reopen (not done or close)
      */
-    public function getUpcomingTasks($days = 3, $uid = null) {
+    public function getUpcomingTasks($days = 7, $uid = null, $projId = null) {
         $sql = "SELECT 
                     t.proj_id,
                     t.task_id,
@@ -114,20 +114,36 @@ class CalendarEvent {
                     t.startAt,
                     t.endAt,
                     t.status,
-                    t.priority
+                    t.priority,
+                    p.proj_name,
+                    DATEDIFF(t.endAt, NOW()) as days_remaining
                 FROM tasks t
+                LEFT JOIN projects p ON t.proj_id = p.proj_id
                 WHERE t.status IN ('open', 'progress', 'reopen') 
-                AND t.endAt BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL ? DAY)
-                ORDER BY t.endAt ASC";
+                AND t.endAt BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL ? DAY)";
         
-        return $this->db->fetchAll($sql, [$days]);
+        $params = [$days];
+        
+        if ($projId) {
+            $sql .= " AND t.proj_id = ?";
+            $params[] = $projId;
+        }
+        
+        if ($uid) {
+            $sql .= " AND EXISTS (SELECT 1 FROM task_assignees ta WHERE ta.proj_id = t.proj_id AND ta.task_id = t.task_id AND ta.uid = ?)";
+            $params[] = $uid;
+        }
+        
+        $sql .= " ORDER BY t.endAt ASC";
+        
+        return $this->db->fetchAll($sql, $params);
     }
     
     /**
      * Get overdue tasks
      * Tasks that are not done/close but past their end date
      */
-    public function getOverdueTasks($uid = null) {
+    public function getOverdueTasks($uid = null, $projId = null) {
         $sql = "SELECT 
                     t.proj_id,
                     t.task_id,
@@ -136,67 +152,89 @@ class CalendarEvent {
                     t.startAt,
                     t.endAt,
                     t.status,
-                    t.priority
+                    t.priority,
+                    p.proj_name,
+                    DATEDIFF(NOW(), t.endAt) as days_overdue
                 FROM tasks t
+                LEFT JOIN projects p ON t.proj_id = p.proj_id
                 WHERE t.status NOT IN ('done', 'close') 
-                AND t.endAt < NOW()
-                ORDER BY t.endAt ASC";
+                AND t.endAt < NOW()";
         
-        return $this->db->fetchAll($sql);
-    }
-    
-    /**
-     * Create new calendar event (sync existing task to calendar)
-     */
-    public function createEvent($data) {
-        $sql = "INSERT INTO calendar_events 
-                (proj_id, task_id, sync_status, calendar_notes)
-                VALUES (?, ?, ?, ?)";
-        
-        $params = [
-            $data['proj_id'],
-            $data['task_id'],
-            $data['sync_status'] ?? 'synced',
-            $data['calendar_notes'] ?? ''
-        ];
-        
-        $this->db->execute($sql, $params);
-        return $this->db->lastInsertId();
-    }
-    
-    /**
-     * Update calendar event
-     */
-    public function updateEvent($id, $data) {
-        $fields = [];
         $params = [];
         
-        foreach ($data as $key => $value) {
-            $fields[] = "$key = ?";
-            $params[] = $value;
+        if ($projId) {
+            $sql .= " AND t.proj_id = ?";
+            $params[] = $projId;
         }
         
-        $params[] = $id;
+        if ($uid) {
+            $sql .= " AND EXISTS (SELECT 1 FROM task_assignees ta WHERE ta.proj_id = t.proj_id AND ta.task_id = t.task_id AND ta.uid = ?)";
+            $params[] = $uid;
+        }
         
-        $sql = "UPDATE calendar_events SET " . implode(', ', $fields) . " WHERE id = ?";
+        $sql .= " ORDER BY t.endAt ASC";
         
-        return $this->db->execute($sql, $params);
+        return $this->db->fetchAll($sql, $params);
     }
     
     /**
-     * Delete calendar event
+     * Get tasks by assignee (user)
      */
-    public function deleteEvent($id) {
-        $sql = "DELETE FROM calendar_events WHERE id = ?";
-        return $this->db->execute($sql, [$id]);
+    public function getTasksByUser($uid, $projId = null) {
+        $sql = "SELECT 
+                    t.proj_id,
+                    t.task_id,
+                    t.task_name,
+                    t.content,
+                    t.startAt,
+                    t.endAt,
+                    t.status,
+                    t.priority,
+                    p.proj_name
+                FROM tasks t
+                INNER JOIN task_assignees ta ON t.proj_id = ta.proj_id AND t.task_id = ta.task_id
+                LEFT JOIN projects p ON t.proj_id = p.proj_id
+                WHERE ta.uid = ?";
+        
+        $params = [$uid];
+        
+        if ($projId) {
+            $sql .= " AND t.proj_id = ?";
+            $params[] = $projId;
+        }
+        
+        $sql .= " ORDER BY t.endAt ASC";
+        
+        return $this->db->fetchAll($sql, $params);
     }
     
     /**
-     * Sync event status
+     * Get tasks by project with assignees
      */
-    public function syncEvent($id, $status = 'synced') {
-        $sql = "UPDATE calendar_events SET sync_status = ?, last_sync_at = NOW() WHERE id = ?";
-        return $this->db->execute($sql, [$status, $id]);
+    public function getTasksByProject($projId) {
+        $sql = "SELECT 
+                    t.proj_id,
+                    t.task_id,
+                    t.task_name,
+                    t.content,
+                    t.startAt,
+                    t.endAt,
+                    t.status,
+                    t.priority,
+                    t.createAt,
+                    t.updateAt,
+                    p.proj_name,
+                    GROUP_CONCAT(DISTINCT u.fullname SEPARATOR ', ') as assignees,
+                    GROUP_CONCAT(DISTINCT u.uid SEPARATOR ',') as assignee_ids
+                FROM tasks t
+                LEFT JOIN projects p ON t.proj_id = p.proj_id
+                LEFT JOIN task_assignees ta ON t.proj_id = ta.proj_id AND t.task_id = ta.task_id
+                LEFT JOIN users u ON ta.uid = u.uid
+                WHERE t.proj_id = ?
+                GROUP BY t.proj_id, t.task_id
+                ORDER BY t.startAt ASC";
+        
+        return $this->db->fetchAll($sql, [$projId]);
     }
     
     /**

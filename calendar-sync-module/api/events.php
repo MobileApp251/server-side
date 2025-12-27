@@ -50,6 +50,10 @@ try {
         $filters['priority'] = is_array($_GET['priority']) ? $_GET['priority'] : explode(',', $_GET['priority']);
     }
     
+    if (isset($_GET['uid'])) {
+        $filters['uid'] = $_GET['uid'];
+    }
+    
     $events = $eventModel->getEvents($filters);
     
     Response::success($events);
