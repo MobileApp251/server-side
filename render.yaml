@@ -1,0 +1,31 @@
+services:
+  # 1. Spring Boot Service (Private)
+  - type: pserv # Private Service
+    name: spring-service
+    runtime: docker
+    dockerContext: ./spring-app # Đường dẫn tới code Java
+    envVars:
+      - key: PORT
+        value: 8080
+      # Các biến môi trường khác (DB connection, etc.)
+
+  # 2. PHP Service (Private)
+  - type: pserv # Private Service
+    name: php-service
+    runtime: docker
+    dockerContext: ./php-app # Đường dẫn tới code PHP
+    envVars:
+      - key: PORT
+        value: 80
+
+  # 3. Nginx Gateway (Public)
+  - type: web # Web Service (Public)
+    name: api-gateway
+    runtime: docker
+    dockerContext: ./gateway
+    plan: free # Hoặc starter tùy nhu cầu
+    envVars:
+      - key: PORT
+        value: 80
+      # Thiết lập cứng tên host nội bộ cho Nginx config nếu cần
+      # Render tự động resolve tên service (spring-service, php-service)
