@@ -3,7 +3,7 @@ services:
   - type: pserv # Private Service
     name: spring-service
     runtime: docker
-    dockerContext: ./spring-app # Đường dẫn tới code Java
+    dockerContext: ./clonejira # Đường dẫn tới code Java
     envVars:
       - key: PORT
         value: 8080
@@ -13,7 +13,7 @@ services:
   - type: pserv # Private Service
     name: php-service
     runtime: docker
-    dockerContext: ./php-app # Đường dẫn tới code PHP
+    dockerContext: ./calendar-sync-module # Đường dẫn tới code PHP
     envVars:
       - key: PORT
         value: 80
