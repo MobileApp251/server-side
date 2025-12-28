@@ -34,15 +34,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         
         // 1. Lấy thông tin user từ Google
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+        assert oauthToken.getPrincipal() != null;
         String email = oauthToken.getPrincipal().getAttribute("email");
         Optional<UserDTO> user = userService.getUserByEmail(email);
         UserDTO userRes;
-        if (user.isEmpty()) {
-            userRes = userService.createUser(email);
-        }
-        else {
-            userRes = user.get();
-        }
+        userRes = user.orElseGet(() -> userService.createUser(email));
         Authentication auth = new UsernamePasswordAuthenticationToken(
                 userRes.getUid(),
                 null,

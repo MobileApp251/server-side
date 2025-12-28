@@ -3,7 +3,9 @@ package mobile.jira.clonejira.service;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.validation.constraints.Email;
 import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -11,16 +13,23 @@ import mobile.jira.clonejira.dto.auth.UserDTO;
 import mobile.jira.clonejira.entity.User;
 import mobile.jira.clonejira.mapper.*;
 import mobile.jira.clonejira.repository.UserRepository;
+import org.springframework.validation.annotation.Validated;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class UserService {
     private final UserRepository userRepository;
+
+    @Qualifier("userMapper")
     private final UserMapper mapper;
 
-    public UserDTO createUser(String email) {
+    public UserDTO createUser(
+          @Email(message = "Invalid email") String email
+    ) {
         User user = new User();
         user.setEmail(email);
+        user.set_google_login(true);
         User newUser =  userRepository.save(user);
         return mapper.toDTO(newUser);
     }

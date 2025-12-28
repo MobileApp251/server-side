@@ -53,27 +53,18 @@ public class MobileLoginController {
     @SecurityRequirements(value = {})
     public ResponseEntity<?> login(
         @RequestBody Map<String, String> requestBody
-    ) throws BadRequestException {
-        System.out.println(googleClientId);
+    ) {
         String idGGToken = requestBody.get("token");
-        System.out.println(idGGToken);
 
         try {
-            System.out.println("-------- idToken verify ----------");
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                                             .setAudience(Collections.singleton(googleClientId))
                                             .build();
             GoogleIdToken idToken = verifier.verify(idGGToken);
 
-            System.out.println("-------- idToken ----------");
-            System.out.println(idToken);
-            System.out.println("-----------------");
-
             if (idToken == null) return ResponseEntity.status(401).body("Wrong Google Login Token!");
 
             GoogleIdToken.Payload payload = idToken.getPayload();
-            System.out.println("----- Payload ---------");
-            System.out.println(payload);
 
             String email = payload.getEmail();
 
@@ -81,12 +72,7 @@ public class MobileLoginController {
             Optional<UserDTO> user = userService.getUserByEmail(email);
             System.out.println(user);
             UserDTO userRes;
-            if (user.isEmpty()) {
-                userRes = userService.createUser(email);
-            }
-            else {
-                userRes = user.get();
-            }
+            userRes = user.orElseGet(() -> userService.createUser(email));
             UsernamePasswordAuthenticationToken 
             authentication = new UsernamePasswordAuthenticationToken(
                 userRes.getUid(), null, Collections.emptyList()
@@ -108,24 +94,15 @@ public class MobileLoginController {
             @RequestParam(value = "redirect_uri", defaultValue = "") String redirectUri
     ) throws BadRequestException{
         if (principal == null) {
-            // Trường hợp này hiếm khi xảy ra nếu config security đúng
             throw new BadRequestException("Không tìm thấy thông tin người dùng Google");
         }
         request.getSession().setAttribute("APP_REDIRECT_URI", redirectUri);
-
-        System.out.println("Login with Google Success");
-        System.out.println(principal.getAttributes());
 
         // 1. Lấy thông tin từ OAuth2User
         String email = principal.getAttribute("email");
         Optional<UserDTO> user = userService.getUserByEmail(email);
         UserDTO userRes;
-        if (user.isEmpty()) {
-            userRes = userService.createUser(email);
-        }
-        else {
-            userRes = user.get();
-        }
+        userRes = user.orElseGet(() -> userService.createUser(email));
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
                 userRes.getUid(),
@@ -142,6 +119,10 @@ public class MobileLoginController {
         @RequestBody LoginDTO loginDTO
     ){
         try {
+            Optional<User> userExist = userRepository.findByEmail(loginDTO.getEmail());
+            if (userExist.isPresent()) {
+                return ResponseEntity.status(400).body("Email already in use!");
+            }
             User user = new User();
             user.setEmail(loginDTO.getEmail());
             String encodedPassword = passwordEncoder.encode(loginDTO.getPassword());

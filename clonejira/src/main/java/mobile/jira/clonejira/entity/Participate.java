@@ -35,4 +35,9 @@ public class Participate {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uid", insertable = false, updatable = false)
     private User member;
+
+    public Participate(ProjectMemberId projectMemberId, ProjectRole projectRole) {
+        this.id = projectMemberId;
+        this.role = projectRole;
+    }
 }

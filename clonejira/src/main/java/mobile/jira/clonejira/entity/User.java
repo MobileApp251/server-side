@@ -31,6 +31,8 @@ public class User {
 
     private String password;
 
+    private boolean is_google_login;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Participate> participates;
 
