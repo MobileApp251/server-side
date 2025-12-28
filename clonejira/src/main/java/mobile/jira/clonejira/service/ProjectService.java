@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
+    private final NotificationService notificationService;
     private final ProjectRepository projectRepository;
     private final ParticipateRepository participateRepository;
     private final UserRepository userRepository;
@@ -45,6 +46,7 @@ public class ProjectService {
         Participate participate = Participate.builder()
                             .id(id).role(roleEnum).build();
 
+        notificationService.sendNotification(uid, "You are added into project #" + proj_id);
         participateRepository.save(participate);
     }
 

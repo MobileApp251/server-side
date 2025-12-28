@@ -21,6 +21,7 @@ import mobile.jira.clonejira.mapper.*;
 @Service
 @RequiredArgsConstructor
 public class TaskService {
+    private final NotificationService notificationService;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final AssignRepository assignRepository;
@@ -48,7 +49,7 @@ public class TaskService {
         TaskAssigneeId id = new TaskAssigneeId(uid, proj_id, task_id);
         Assign newAssignment = new Assign();
         newAssignment.setId(id);
-
+        notificationService.sendNotification(uid, "Task #" + proj_id + "-" + task_id.toString() + " is assigned to you!");
         assignRepository.save(newAssignment);
     }
 
