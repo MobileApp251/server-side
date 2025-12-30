@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jira Clone WebSocket Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .box { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        #logs { height: 300px; overflow-y: scroll; background: #f0f0f0; border: 1px solid #999; padding: 10px; font-family: monospace; }
+        .log-connect { color: green; font-weight: bold; }
+        .log-error { color: red; font-weight: bold; }
+        .log-message { color: blue; font-weight: bold; font-size: 1.1em; }
+    </style>
+</head>
+<body>
+    <h2>🚀 Test WebSocket Jira Clone (STOMP)</h2>
+
+    <div class="box">
+        <label><b>1. Dán Token JWT vào đây (Không cần chữ Bearer):</b></label><br>
+        <textarea id="token" rows="3" style="width: 100%; margin-top: 5px;"></textarea>
+        <br><br>
+        <button onclick="connect()">🔌 KẾT NỐI (CONNECT)</button>
+        <button onclick="disconnect()" disabled id="btnDisconnect">❌ NGẮT KẾT NỐI</button>
+    </div>
+
+    <div class="box">
+        <h3>📜 Trạng thái & Tin nhắn:</h3>
+        <div id="logs"></div>
+    </div>
+
+    <script>
+        var stompClient = null;
+
+        function log(msg, className) {
+            var logs = document.getElementById("logs");
+            var div = document.createElement("div");
+            div.className = className || "";
+            div.innerText = new Date().toLocaleTimeString() + ": " + msg;
+            logs.appendChild(div);
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        function connect() {
+            var token = document.getElementById("token").value.trim();
+            //if (!token) { alert("Chưa nhập Token!"); return; }
+
+            // URL này dùng SockJS, khớp với code .withSockJS() của bạn
+            var socket = new SockJS('http://localhost:8081/ws'); 
+            stompClient = Stomp.over(socket);
+
+            // Tắt debug console cho đỡ rối
+            stompClient.debug = null; 
+
+            var headers = {
+                'Authorization': 'Bearer ' + token
+            };
+
+            log("Đang kết nối tới server...", "");
+
+            stompClient.connect(headers, function (frame) {
+                log(">>> KẾT NỐI THÀNH CÔNG! (CONNECTED)", "log-connect");
+                log("User session: " + frame.headers['user-name'], "log-connect");
+                document.getElementById("btnDisconnect").disabled = false;
+
+                // Subscribe đúng kênh /user/queue/notification như trong code Java của bạn
+                // Lưu ý: Client dùng /user/queue/notification, Server sẽ tự map vào session
+                var subUrl = '/user/queue/notification'; 
+                
+                log("Đang đăng ký lắng nghe tại: " + subUrl, "");
+                
+                stompClient.subscribe(subUrl, function (output) {
+                    log("📩 NHẬN ĐƯỢC THÔNG BÁO: " + output.body, "log-message");
+                });
+
+            }, function (error) {
+                log("LỖI KẾT NỐI: " + error, "log-error");
+                log("Check lại Token hoặc Log Server xem có lỗi 401/403 không.", "log-error");
+                log(error.message, "log-error")
+            });
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+            }
+            log("Đã ngắt kết nối.", "");
+            document.getElementById("btnDisconnect").disabled = true;
+        }
+    </script>
+</body>
+</html>
