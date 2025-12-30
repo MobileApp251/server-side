@@ -65,6 +65,14 @@ public class ProjectService {
         return mapper.toDTO(newProject);
     }
 
+    public void addMember(String proj_id, String email) throws BadRequestException {
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if  (user.isEmpty()) throw new BadRequestException("User not found!");
+
+        joinProject(user.get().getUid().toString(), proj_id, "member");
+    }
+
     public List<ProjectParticipantGroupDTO> getAllMyProjects(String uid, int page, int size, String sortBy, String sortDir) throws BadRequestException {
 
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())

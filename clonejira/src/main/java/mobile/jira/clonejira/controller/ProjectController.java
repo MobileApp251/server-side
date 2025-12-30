@@ -48,6 +48,20 @@ public class ProjectController {
         }
     }
 
+    @PostMapping("/add/{project_id}/{email}")
+    public ResponseEntity<?> addMemberToProject(
+            @PathVariable("project_id") String project_id,
+            @PathVariable("email") String email
+    ){
+        try {
+            projectService.addMember(project_id, email);
+
+            return ResponseEntity.ok("Add member to project successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Error!");
+        }
+    }
+
     @GetMapping()
     public ResponseEntity<?> getAllMyProjects (
         @AuthenticationPrincipal UserDetails userDetails,
