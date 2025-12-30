@@ -4,7 +4,8 @@
  * Endpoint: GET /api/overdue.php
  * 
  * Query Parameters:
- * - user_id: UUID (optional)
+ * - uid: User ID (optional)
+ * - proj_id: Project ID (optional)
  */
 
 header('Content-Type: application/json');
@@ -24,8 +25,9 @@ try {
     $eventModel = new CalendarEvent();
     
     $uid = $_GET['uid'] ?? null;
+    $projId = $_GET['proj_id'] ?? null;
     
-    $tasks = $eventModel->getOverdueTasks($uid);
+    $tasks = $eventModel->getOverdueTasks($uid, $projId);
     
     Response::success($tasks);
     

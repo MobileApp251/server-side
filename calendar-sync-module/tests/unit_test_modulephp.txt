@@ -1,0 +1,776 @@
+=====================================================
+UNIT TESTS FOR CALENDAR SYNC MODULE PHP
+=====================================================
+Test Date: December 28, 2025
+Module Version: 1.0.0
+Database: Railway MySQL
+
+=====================================================
+TEST SUITE 1: CalendarEvent Model Tests
+=====================================================
+
+Test 1.1: getEvents() - Get all tasks
+--------------------------------------
+Description: Retrieve all tasks without filters
+Expected: Array of tasks with project information
+
+Test Query:
+SELECT 
+    t.proj_id, t.task_id, t.task_name, t.content,
+    t.startAt, t.endAt, t.status, t.priority,
+    t.createAt, t.updateAt, p.proj_name
+FROM tasks t
+LEFT JOIN projects p ON t.proj_id = p.proj_id
+
+Expected Result:
+✓ Returns array
+✓ Each item has: proj_id, task_id, task_name, status, priority, proj_name
+✓ Status values: 'open', 'progress', 'done', 'reopen', 'close'
+✓ Priority values: 'high', 'medium', 'low'
+
+
+Test 1.2: getEvents() - Filter by status
+--------------------------------------
+Description: Filter tasks by status (open, progress)
+Input: filters['status'] = ['open', 'progress']
+
+Test Query:
+WHERE t.status IN ('open', 'progress')
+
+Expected Result:
+✓ Only returns tasks with status 'open' or 'progress'
+✓ Excludes 'done', 'close', 'reopen' tasks
+
+
+Test 1.3: getEvents() - Filter by date range
+--------------------------------------
+Description: Filter tasks by start_date and end_date
+Input: 
+  - filters['start_date'] = '2025-01-01'
+  - filters['end_date'] = '2025-12-31'
+
+Test Query:
+WHERE t.startAt >= '2025-01-01' AND t.endAt <= '2025-12-31'
+
+Expected Result:
+✓ Only returns tasks within date range
+✓ Tasks outside range are excluded
+
+
+Test 1.4: getEvents() - Filter by project
+--------------------------------------
+Description: Filter tasks by project ID
+Input: filters['proj_id'] = 'uuid-of-project'
+
+Test Query:
+WHERE t.proj_id = 'uuid-of-project'
+
+Expected Result:
+✓ Only returns tasks from specified project
+✓ All results have same proj_id
+
+
+Test 1.5: getEvents() - Filter by priority
+--------------------------------------
+Description: Filter tasks by priority (high, medium)
+Input: filters['priority'] = ['high', 'medium']
+
+Test Query:
+WHERE t.priority IN ('high', 'medium')
+
+Expected Result:
+✓ Only returns tasks with priority 'high' or 'medium'
+✓ Excludes 'low' priority tasks
+
+
+Test 1.6: getEventsByDateRange() - Calendar view
+--------------------------------------
+Description: Get tasks in a specific date range for calendar
+Input:
+  - startDate = '2025-12-01'
+  - endDate = '2025-12-31'
+  - projId = null (optional)
+
+Test Query:
+WHERE (t.startAt BETWEEN '2025-12-01' AND '2025-12-31') 
+   OR (t.endAt BETWEEN '2025-12-01' AND '2025-12-31')
+   OR (t.startAt <= '2025-12-01' AND t.endAt >= '2025-12-31')
+
+Expected Result:
+✓ Returns tasks that overlap with date range
+✓ Includes tasks starting in range
+✓ Includes tasks ending in range
+✓ Includes tasks spanning the entire range
+
+
+Test 1.7: getUpcomingTasks() - Get tasks due soon
+--------------------------------------
+Description: Get tasks due within next N days
+Input:
+  - days = 7
+  - uid = null
+  - projId = null
+
+Test Query:
+WHERE t.status IN ('open', 'progress', 'reopen') 
+AND t.endAt BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY)
+
+Expected Result:
+✓ Only returns tasks with status 'open', 'progress', or 'reopen'
+✓ Only returns tasks due within next 7 days
+✓ Includes 'days_remaining' field
+✓ Ordered by endAt ASC
+
+
+Test 1.8: getUpcomingTasks() - Filter by user
+--------------------------------------
+Description: Get upcoming tasks assigned to specific user
+Input:
+  - days = 7
+  - uid = 'user-uuid'
+  - projId = null
+
+Test Query:
+AND EXISTS (SELECT 1 FROM task_assignees ta 
+    WHERE ta.proj_id = t.proj_id AND ta.task_id = t.task_id 
+    AND ta.uid = 'user-uuid')
+
+Expected Result:
+✓ Only returns tasks assigned to specified user
+✓ Uses task_assignees table for filtering
+
+
+Test 1.9: getOverdueTasks() - Get overdue tasks
+--------------------------------------
+Description: Get tasks past their deadline
+Input: uid = null, projId = null
+
+Test Query:
+WHERE t.status NOT IN ('done', 'close') 
+AND t.endAt < NOW()
+
+Expected Result:
+✓ Only returns incomplete tasks (not done/close)
+✓ Only returns tasks where endAt is in the past
+✓ Includes 'days_overdue' field
+✓ Ordered by endAt ASC
+
+
+Test 1.10: getTasksByUser() - Get user's tasks
+--------------------------------------
+Description: Get all tasks assigned to a user
+Input: uid = 'user-uuid', projId = null
+
+Test Query:
+FROM tasks t
+INNER JOIN task_assignees ta ON t.proj_id = ta.proj_id AND t.task_id = ta.task_id
+WHERE ta.uid = 'user-uuid'
+
+Expected Result:
+✓ Returns all tasks assigned to user
+✓ Uses INNER JOIN with task_assignees
+✓ Includes project information
+
+
+Test 1.11: getTasksByProject() - Get project tasks with assignees
+--------------------------------------
+Description: Get all tasks in a project with assignee names
+Input: projId = 'project-uuid'
+
+Test Query:
+SELECT ..., 
+    GROUP_CONCAT(DISTINCT u.fullname SEPARATOR ', ') as assignees,
+    GROUP_CONCAT(DISTINCT u.uid SEPARATOR ',') as assignee_ids
+FROM tasks t
+LEFT JOIN task_assignees ta ...
+LEFT JOIN users u ON ta.uid = u.uid
+WHERE t.proj_id = 'project-uuid'
+GROUP BY t.proj_id, t.task_id
+
+Expected Result:
+✓ Returns all tasks in project
+✓ Includes comma-separated assignee names
+✓ Includes comma-separated assignee UIDs
+✓ Grouped by task
+
+
+Test 1.12: getStatistics() - Get task statistics
+--------------------------------------
+Description: Get aggregated statistics for all tasks
+Input: projId = null
+
+Test Query:
+SELECT 
+    COUNT(*) as total,
+    SUM(CASE WHEN t.status = 'done' THEN 1 ELSE 0 END) as completed,
+    SUM(CASE WHEN t.status = 'progress' THEN 1 ELSE 0 END) as in_progress,
+    SUM(CASE WHEN t.status = 'open' THEN 1 ELSE 0 END) as open,
+    SUM(CASE WHEN t.status = 'close' THEN 1 ELSE 0 END) as closed,
+    SUM(CASE WHEN t.status = 'reopen' THEN 1 ELSE 0 END) as reopened,
+    SUM(CASE WHEN t.status NOT IN ('done', 'close') AND t.endAt < NOW() THEN 1 ELSE 0 END) as overdue
+FROM tasks t
+
+Expected Result:
+✓ Returns single row with statistics
+✓ total: Total number of tasks
+✓ completed: Tasks with status 'done'
+✓ in_progress: Tasks with status 'progress'
+✓ open: Tasks with status 'open'
+✓ closed: Tasks with status 'close'
+✓ reopened: Tasks with status 'reopen'
+✓ overdue: Incomplete tasks past deadline
+
+
+Test 1.13: getStatistics() - Filter by project
+--------------------------------------
+Description: Get statistics for specific project
+Input: projId = 'project-uuid'
+
+Test Query:
+WHERE t.proj_id = 'project-uuid'
+
+Expected Result:
+✓ Only counts tasks from specified project
+✓ All statistics reflect project scope
+
+
+=====================================================
+TEST SUITE 2: API Endpoints Tests
+=====================================================
+
+Test 2.1: GET /api/statistics.php
+--------------------------------------
+Description: Get task statistics API
+HTTP Method: GET
+Endpoint: /api/statistics.php
+Query Params: ?proj_id=uuid (optional)
+
+Test Cases:
+a) No parameters (all tasks)
+   curl "http://localhost:8000/api/statistics.php"
+   Expected Response:
+   {
+     "success": true,
+     "data": {
+       "total": 100,
+       "completed": 45,
+       "in_progress": 30,
+       "open": 15,
+       "closed": 5,
+       "reopened": 3,
+       "overdue": 2
+     }
+   }
+
+b) With project ID
+   curl "http://localhost:8000/api/statistics.php?proj_id=abc-123"
+   Expected: Only statistics for specified project
+
+
+Test 2.2: GET /api/events.php
+--------------------------------------
+Description: Get filtered tasks API
+HTTP Method: GET
+Endpoint: /api/events.php
+Query Params:
+  - status (comma-separated)
+  - start_date (YYYY-MM-DD)
+  - end_date (YYYY-MM-DD)
+  - proj_id (UUID)
+  - priority (comma-separated)
+  - uid (UUID)
+
+Test Cases:
+a) No filters (all tasks)
+   curl "http://localhost:8000/api/events.php"
+   Expected: All tasks with project info
+
+b) Filter by status
+   curl "http://localhost:8000/api/events.php?status=open,progress"
+   Expected: Only open and progress tasks
+
+c) Filter by project
+   curl "http://localhost:8000/api/events.php?proj_id=abc-123"
+   Expected: Only tasks from project abc-123
+
+d) Multiple filters
+   curl "http://localhost:8000/api/events.php?status=open&priority=high&proj_id=abc-123"
+   Expected: Open, high priority tasks in project abc-123
+
+e) Filter by user
+   curl "http://localhost:8000/api/events.php?uid=user-123"
+   Expected: Tasks assigned to user-123
+
+Response Format:
+{
+  "success": true,
+  "data": [
+    {
+      "proj_id": "uuid",
+      "task_id": 1,
+      "task_name": "Task name",
+      "content": "Description",
+      "startAt": "2025-01-01 00:00:00",
+      "endAt": "2025-01-31 23:59:59",
+      "status": "progress",
+      "priority": "high",
+      "createAt": "2025-01-01 00:00:00",
+      "updateAt": "2025-01-02 00:00:00",
+      "proj_name": "Project Name"
+    }
+  ]
+}
+
+
+Test 2.3: GET /api/calendar.php
+--------------------------------------
+Description: Get tasks for calendar view
+HTTP Method: GET
+Endpoint: /api/calendar.php
+Required Params: start_date, end_date
+Optional Params: proj_id
+
+Test Cases:
+a) Basic date range
+   curl "http://localhost:8000/api/calendar.php?start_date=2025-12-01&end_date=2025-12-31"
+   Expected: Tasks overlapping with December 2025
+
+b) With project filter
+   curl "http://localhost:8000/api/calendar.php?start_date=2025-12-01&end_date=2025-12-31&proj_id=abc-123"
+   Expected: December tasks from project abc-123
+
+c) Missing required params
+   curl "http://localhost:8000/api/calendar.php"
+   Expected: Error 400 - Missing required parameters
+
+
+Test 2.4: GET /api/upcoming.php
+--------------------------------------
+Description: Get upcoming tasks
+HTTP Method: GET
+Endpoint: /api/upcoming.php
+Query Params:
+  - days (default: 7)
+  - uid (optional)
+  - proj_id (optional)
+
+Test Cases:
+a) Default (7 days)
+   curl "http://localhost:8000/api/upcoming.php"
+   Expected: Tasks due within next 7 days
+
+b) Custom days
+   curl "http://localhost:8000/api/upcoming.php?days=14"
+   Expected: Tasks due within next 14 days
+
+c) Filter by user
+   curl "http://localhost:8000/api/upcoming.php?days=7&uid=user-123"
+   Expected: User's upcoming tasks
+
+d) Filter by project
+   curl "http://localhost:8000/api/upcoming.php?days=7&proj_id=abc-123"
+   Expected: Project's upcoming tasks
+
+Response includes:
+✓ days_remaining field (calculated)
+✓ Only status: open, progress, reopen
+✓ Ordered by endAt ASC
+
+
+Test 2.5: GET /api/overdue.php
+--------------------------------------
+Description: Get overdue tasks
+HTTP Method: GET
+Endpoint: /api/overdue.php
+Query Params:
+  - uid (optional)
+  - proj_id (optional)
+
+Test Cases:
+a) All overdue tasks
+   curl "http://localhost:8000/api/overdue.php"
+   Expected: All incomplete tasks past deadline
+
+b) User's overdue tasks
+   curl "http://localhost:8000/api/overdue.php?uid=user-123"
+   Expected: User's overdue tasks
+
+c) Project overdue tasks
+   curl "http://localhost:8000/api/overdue.php?proj_id=abc-123"
+   Expected: Project's overdue tasks
+
+d) User in project
+   curl "http://localhost:8000/api/overdue.php?uid=user-123&proj_id=abc-123"
+   Expected: User's overdue tasks in specific project
+
+Response includes:
+✓ days_overdue field (calculated)
+✓ Only incomplete tasks (not done/close)
+✓ Ordered by endAt ASC
+
+
+Test 2.6: GET /api/user-tasks.php
+--------------------------------------
+Description: Get tasks assigned to user
+HTTP Method: GET
+Endpoint: /api/user-tasks.php
+Required Params: uid
+Optional Params: proj_id
+
+Test Cases:
+a) Missing uid
+   curl "http://localhost:8000/api/user-tasks.php"
+   Expected: Error 400 - User ID required
+
+b) User's all tasks
+   curl "http://localhost:8000/api/user-tasks.php?uid=user-123"
+   Expected: All tasks assigned to user-123
+
+c) User's tasks in project
+   curl "http://localhost:8000/api/user-tasks.php?uid=user-123&proj_id=abc-123"
+   Expected: User's tasks in specific project
+
+Response Format:
+{
+  "success": true,
+  "data": {
+    "uid": "user-123",
+    "total": 15,
+    "tasks": [...]
+  }
+}
+
+
+Test 2.7: GET /api/project-tasks.php
+--------------------------------------
+Description: Get all tasks in project with assignees
+HTTP Method: GET
+Endpoint: /api/project-tasks.php
+Required Params: proj_id
+
+Test Cases:
+a) Missing proj_id
+   curl "http://localhost:8000/api/project-tasks.php"
+   Expected: Error 400 - Project ID required
+
+b) Project tasks with assignees
+   curl "http://localhost:8000/api/project-tasks.php?proj_id=abc-123"
+   Expected: All tasks with assignee names
+
+Response Format:
+{
+  "success": true,
+  "data": {
+    "proj_id": "abc-123",
+    "total": 25,
+    "tasks": [
+      {
+        "proj_id": "abc-123",
+        "task_id": 1,
+        "task_name": "Task",
+        "assignees": "John Doe, Jane Smith",
+        "assignee_ids": "uid1,uid2",
+        ...
+      }
+    ]
+  }
+}
+
+
+=====================================================
+TEST SUITE 3: Integration Tests
+=====================================================
+
+Test 3.1: Database Connection
+--------------------------------------
+Description: Verify connection to Railway MySQL
+Test Steps:
+1. Load config/Database.php
+2. Call Database::getInstance()
+3. Call getConnection()
+
+Expected:
+✓ Connection succeeds
+✓ PDO object returned
+✓ No exceptions thrown
+
+
+Test 3.2: CORS Headers
+--------------------------------------
+Description: Verify CORS headers in all APIs
+Test APIs: All 7 endpoints
+
+Expected Headers:
+✓ Access-Control-Allow-Origin: *
+✓ Access-Control-Allow-Methods: GET, OPTIONS, etc.
+✓ Access-Control-Allow-Headers: Content-Type
+✓ Content-Type: application/json
+
+
+Test 3.3: Error Handling
+--------------------------------------
+Description: Test error responses
+
+Test Cases:
+a) Invalid proj_id
+   curl "http://localhost:8000/api/events.php?proj_id=invalid-uuid"
+   Expected: Empty array or proper error
+
+b) SQL injection attempt
+   curl "http://localhost:8000/api/events.php?status='; DROP TABLE tasks; --"
+   Expected: Protected by prepared statements
+
+c) Database connection failure
+   Simulate: Wrong credentials in config.php
+   Expected: Error 500 with message
+
+
+Test 3.4: Response Format Consistency
+--------------------------------------
+Description: All APIs return consistent format
+
+Expected Response Structure (Success):
+{
+  "success": true,
+  "data": {...},
+  "message": "Success" (optional),
+  "timestamp": "2025-12-28 00:00:00"
+}
+
+Expected Response Structure (Error):
+{
+  "success": false,
+  "message": "Error description",
+  "timestamp": "2025-12-28 00:00:00"
+}
+
+
+Test 3.5: Performance Tests
+--------------------------------------
+Description: Measure response times
+
+Test Cases:
+a) Small dataset (< 100 tasks)
+   Expected: < 100ms response time
+
+b) Medium dataset (100-1000 tasks)
+   Expected: < 500ms response time
+
+c) Large dataset (> 1000 tasks)
+   Expected: < 2000ms response time
+
+d) Complex query (multiple JOINs)
+   /api/project-tasks.php with many assignees
+   Expected: < 1000ms response time
+
+
+=====================================================
+TEST SUITE 4: Edge Cases
+=====================================================
+
+Test 4.1: Empty Results
+--------------------------------------
+Description: Handle queries with no results
+
+Test Cases:
+a) Project with no tasks
+   curl "http://localhost:8000/api/events.php?proj_id=empty-project"
+   Expected: {"success": true, "data": []}
+
+b) No upcoming tasks
+   curl "http://localhost:8000/api/upcoming.php"
+   Expected: {"success": true, "data": []}
+
+
+Test 4.2: NULL Values
+--------------------------------------
+Description: Handle NULL fields in database
+
+Test Cases:
+a) Task with NULL startAt
+   Expected: Field returned as null in JSON
+
+b) Project with NULL description
+   Expected: Handled gracefully
+
+
+Test 4.3: Special Characters
+--------------------------------------
+Description: Handle special characters in data
+
+Test Cases:
+a) Task name with quotes: "Task "Special" Name"
+   Expected: Properly escaped in JSON
+
+b) Content with newlines
+   Expected: Preserved in response
+
+
+Test 4.4: Date Boundary Cases
+--------------------------------------
+Description: Test date edge cases
+
+Test Cases:
+a) Task ending today at 23:59:59
+   Is it upcoming or overdue?
+   Expected: Upcoming if endAt > NOW()
+
+b) Task spanning multiple months
+   Calendar query: 2025-12-01 to 2025-12-31
+   Task: 2025-11-15 to 2026-01-15
+   Expected: Included in results
+
+
+=====================================================
+TEST SUITE 5: Manual Testing Checklist
+=====================================================
+
+[ ] 1. Start PHP server: php -S localhost:8000
+[ ] 2. Open browser: http://localhost:8000
+[ ] 3. Verify index.php displays documentation
+[ ] 4. Test GET /api/statistics.php in browser
+[ ] 5. Test GET /api/events.php with various filters
+[ ] 6. Test GET /api/calendar.php with date range
+[ ] 7. Test GET /api/upcoming.php
+[ ] 8. Test GET /api/overdue.php
+[ ] 9. Test GET /api/user-tasks.php with valid uid
+[ ] 10. Test GET /api/project-tasks.php with valid proj_id
+[ ] 11. Verify all responses return valid JSON
+[ ] 12. Verify CORS works from frontend application
+[ ] 13. Check browser console for errors
+[ ] 14. Test with Postman/Insomnia for detailed headers
+[ ] 15. Verify database queries in Railway dashboard
+
+
+=====================================================
+AUTOMATED TEST SCRIPT (PHPUnit Format)
+=====================================================
+
+To run automated tests, create tests/CalendarEventTest.php:
+
+<?php
+use PHPUnit\Framework\TestCase;
+require_once __DIR__ . '/../models/CalendarEvent.php';
+
+class CalendarEventTest extends TestCase
+{
+    private $model;
+    
+    protected function setUp(): void {
+        $this->model = new CalendarEvent();
+    }
+    
+    public function testGetEventsReturnsArray() {
+        $result = $this->model->getEvents();
+        $this->assertIsArray($result);
+    }
+    
+    public function testGetEventsWithStatusFilter() {
+        $filters = ['status' => ['open', 'progress']];
+        $result = $this->model->getEvents($filters);
+        foreach ($result as $task) {
+            $this->assertContains($task['status'], ['open', 'progress']);
+        }
+    }
+    
+    public function testGetStatisticsReturnsCorrectStructure() {
+        $result = $this->model->getStatistics();
+        $this->assertArrayHasKey('total', $result);
+        $this->assertArrayHasKey('completed', $result);
+        $this->assertArrayHasKey('in_progress', $result);
+        $this->assertArrayHasKey('open', $result);
+        $this->assertArrayHasKey('overdue', $result);
+    }
+    
+    public function testGetUpcomingTasksWithDays() {
+        $result = $this->model->getUpcomingTasks(7);
+        $this->assertIsArray($result);
+        foreach ($result as $task) {
+            $this->assertArrayHasKey('days_remaining', $task);
+        }
+    }
+    
+    public function testGetOverdueTasksReturnsOverdueOnly() {
+        $result = $this->model->getOverdueTasks();
+        $now = new DateTime();
+        foreach ($result as $task) {
+            $endAt = new DateTime($task['endAt']);
+            $this->assertLessThan($now, $endAt);
+            $this->assertNotContains($task['status'], ['done', 'close']);
+        }
+    }
+}
+
+Run tests:
+vendor/bin/phpunit tests/CalendarEventTest.php
+
+
+=====================================================
+CURL TEST COMMANDS (Copy & Run)
+=====================================================
+
+# Test 1: Statistics
+curl "http://localhost:8000/api/statistics.php"
+
+# Test 2: All events
+curl "http://localhost:8000/api/events.php"
+
+# Test 3: Filter by status
+curl "http://localhost:8000/api/events.php?status=open,progress"
+
+# Test 4: Calendar view (December 2025)
+curl "http://localhost:8000/api/calendar.php?start_date=2025-12-01&end_date=2025-12-31"
+
+# Test 5: Upcoming tasks (7 days)
+curl "http://localhost:8000/api/upcoming.php?days=7"
+
+# Test 6: Overdue tasks
+curl "http://localhost:8000/api/overdue.php"
+
+# Test 7: User tasks (replace with real UID)
+curl "http://localhost:8000/api/user-tasks.php?uid=YOUR-USER-UUID"
+
+# Test 8: Project tasks (replace with real project ID)
+curl "http://localhost:8000/api/project-tasks.php?proj_id=YOUR-PROJECT-UUID"
+
+# Test 9: Filter by priority
+curl "http://localhost:8000/api/events.php?priority=high,medium"
+
+# Test 10: Complex filter
+curl "http://localhost:8000/api/events.php?status=progress&priority=high&proj_id=YOUR-PROJECT-UUID"
+
+
+=====================================================
+TEST RESULTS LOG
+=====================================================
+
+Date: __________
+Tester: __________
+Environment: Railway MySQL
+
+Test Results:
+[ ] Model Tests: ____ / 13 passed
+[ ] API Tests: ____ / 7 passed
+[ ] Integration Tests: ____ / 5 passed
+[ ] Edge Cases: ____ / 4 passed
+[ ] Manual Tests: ____ / 15 passed
+
+Issues Found:
+1. _______________________________________________
+2. _______________________________________________
+3. _______________________________________________
+
+Performance Metrics:
+- Average Response Time: _______ ms
+- Slowest Endpoint: _____________
+- Database Query Time: _______ ms
+
+Recommendations:
+1. _______________________________________________
+2. _______________________________________________
+3. _______________________________________________
+
+
+=====================================================
+END OF UNIT TESTS
+=====================================================
