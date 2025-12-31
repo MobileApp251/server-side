@@ -7,6 +7,7 @@ import mobile.jira.clonejira.dto.auth.UserDTO;
 import mobile.jira.clonejira.dto.task.*;
 import mobile.jira.clonejira.repository.ProjectRepository;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -106,11 +107,17 @@ public class TaskService {
         return taskRes;
     }
 
-    public TaskDTO getTaskById(String project_id, Integer task_id){
-        ProjectTaskId id = new ProjectTaskId(project_id, task_id);
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
-        return taskMapper.toDTO(task);
+    public TaskAssigneeGroupDTO getTaskById(String project_id, Integer task_id) throws ChangeSetPersister.NotFoundException {
+        List<Object[]> task = taskRepository.findTaskByIdWithAssignee(project_id, task_id);
+        if (task.isEmpty()) {
+            throw new ChangeSetPersister.NotFoundException();
+        }
+
+        TaskAssigneeGroupDTO groupDTO = new TaskAssigneeGroupDTO();
+        groupDTO.setTask(taskMapper.toDTO((Task) task.stream().toList().get(0)[0]));
+        groupDTO.setMembers(task.stream().map(item -> userMapper.toDTO((User) item[1])).collect(Collectors.toList()));
+
+        return groupDTO;
     }
 
     public List<TaskDTO> getAllTasksByAssignee(String project_id, String uid){

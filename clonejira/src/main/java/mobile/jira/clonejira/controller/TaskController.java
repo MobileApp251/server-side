@@ -108,7 +108,7 @@ public class TaskController {
             if (checkProject.isEmpty()) {
                 return ResponseEntity.status(400).body("User is not present in project!");
             }
-            TaskDTO taskDTO = taskService.getTaskById(project_id, task_id);
+            TaskAssigneeGroupDTO taskDTO = taskService.getTaskById(project_id, task_id);
 
             return ResponseEntity.ok(taskDTO);
         } catch (Exception e) {
