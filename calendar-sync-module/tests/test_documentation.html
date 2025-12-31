@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Calendar Sync Module - Test Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #0066cc;
+            border-bottom: 3px solid #0066cc;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #333;
+            background-color: #e6f2ff;
+            padding: 10px;
+            margin-top: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #0066cc;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status-pass {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .priority-critical {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .priority-high {
+            color: #fd7e14;
+            font-weight: bold;
+        }
+        .priority-medium {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .priority-low {
+            color: #6c757d;
+        }
+        .test-steps {
+            white-space: pre-line;
+            font-size: 0.9em;
+        }
+        .expected-result {
+            white-space: pre-line;
+            font-size: 0.9em;
+            color: #0066cc;
+        }
+        .summary {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0066cc;
+        }
+        .summary-stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .stat-box {
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>📋 Calendar Sync Module - Test Documentation</h1>
+    
+    <div class="summary">
+        <h3>Test Summary</h3>
+        <p><strong>Module:</strong> Calendar Sync PHP Module</p>
+        <p><strong>Version:</strong> 1.0.0</p>
+        <p><strong>Test Date:</strong> December 31, 2025</p>
+        <p><strong>Database:</strong> Railway MySQL</p>
+        <p><strong>Environment:</strong> Development</p>
+        
+        <div class="summary-stats">
+            <div class="stat-box">
+                <div class="stat-number">56</div>
+                <div class="stat-label">Total Tests</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">56</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+    </div>
+
+    <h2>📊 Test Suite 1: Model Tests (13 tests)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 80px;">Test ID</th>
+                <th style="width: 250px;">Test Case</th>
+                <th style="width: 300px;">Test Steps</th>
+                <th style="width: 300px;">Expected Result</th>
+                <th style="width: 150px;">Actual Result</th>
+                <th style="width: 80px;">Status</th>
+                <th style="width: 80px;">Priority</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1.1</td>
+                <td><strong>getEvents() - Get all tasks</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Call getEvents() without filters
+3. Verify response structure</td>
+                <td class="expected-result">✓ Returns array
+✓ Each item has: proj_id, task_id, task_name, status, priority, proj_name
+✓ Status values: open, progress, done, reopen, close</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>1.2</td>
+                <td><strong>getEvents() - Filter by status</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Call getEvents(['status' => ['open', 'progress']])
+3. Verify all returned tasks have correct status</td>
+                <td class="expected-result">✓ Only returns tasks with status 'open' or 'progress'
+✓ Excludes done, close, reopen tasks</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>1.3</td>
+                <td><strong>getEvents() - Filter by date range</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Set filters: start_date, end_date
+3. Verify date filtering works</td>
+                <td class="expected-result">✓ Only returns tasks within date range
+✓ Tasks outside range are excluded</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-medium">Medium</td>
+            </tr>
+            <tr>
+                <td>1.4</td>
+                <td><strong>getEvents() - Filter by project</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Call getEvents(['proj_id' => 'test-uuid'])
+3. Verify project filtering</td>
+                <td class="expected-result">✓ Only returns tasks from specified project
+✓ All results have same proj_id</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>1.5</td>
+                <td><strong>getEvents() - Filter by priority</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Call getEvents(['priority' => ['high', 'medium']])
+3. Verify priority filtering</td>
+                <td class="expected-result">✓ Only returns high/medium priority tasks
+✓ Excludes low priority tasks</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-medium">Medium</td>
+            </tr>
+            <tr>
+                <td>1.6</td>
+                <td><strong>getEventsByDateRange() - Calendar view</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Call getEventsByDateRange('2025-12-01', '2025-12-31')
+3. Verify overlap logic</td>
+                <td class="expected-result">✓ Returns tasks overlapping with date range
+✓ Includes all overlap scenarios</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>1.7</td>
+                <td><strong>getUpcomingTasks() - Get tasks due soon</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Call getUpcomingTasks(7)
+3. Verify upcoming logic</td>
+                <td class="expected-result">✓ Returns tasks due within 7 days
+✓ Only status: open, progress, reopen
+✓ Includes days_remaining field</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>1.8</td>
+                <td><strong>getUpcomingTasks() - Filter by user</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Call getUpcomingTasks(7, 'user-uuid')
+3. Verify user filtering</td>
+                <td class="expected-result">✓ Only returns tasks assigned to user
+✓ Uses task_assignees table</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-medium">Medium</td>
+            </tr>
+            <tr>
+                <td>1.9</td>
+                <td><strong>getOverdueTasks() - Get overdue tasks</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Call getOverdueTasks()
+3. Verify overdue logic</td>
+                <td class="expected-result">✓ Only incomplete tasks (not done/close)
+✓ Only tasks where endAt < NOW()
+✓ Includes days_overdue field</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>1.10</td>
+                <td><strong>getTasksByUser() - Get user's tasks</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Call getTasksByUser('user-uuid')
+3. Verify user task retrieval</td>
+                <td class="expected-result">✓ Returns all tasks assigned to user
+✓ Uses INNER JOIN with task_assignees</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>1.11</td>
+                <td><strong>getTasksByProject() - Get project tasks with assignees</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Call getTasksByProject('project-uuid')
+3. Verify assignee aggregation</td>
+                <td class="expected-result">✓ Returns all project tasks
+✓ Includes comma-separated assignee names
+✓ Grouped by task</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>1.12</td>
+                <td><strong>getStatistics() - Get task statistics</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Call getStatistics()
+3. Verify statistics structure</td>
+                <td class="expected-result">✓ Returns statistics object
+✓ Includes: total, completed, in_progress, open, closed, reopened, overdue</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>1.13</td>
+                <td><strong>getStatistics() - Filter by project</strong></td>
+                <td class="test-steps">1. Create CalendarEvent instance
+2. Call getStatistics('project-uuid')
+3. Verify project-specific stats</td>
+                <td class="expected-result">✓ Only counts tasks from specified project
+✓ All statistics reflect project scope</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-medium">Medium</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>🌐 Test Suite 2: API Endpoint Tests (23 tests)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 80px;">Test ID</th>
+                <th style="width: 250px;">Test Case</th>
+                <th style="width: 300px;">Test Steps</th>
+                <th style="width: 300px;">Expected Result</th>
+                <th style="width: 150px;">Actual Result</th>
+                <th style="width: 80px;">Status</th>
+                <th style="width: 80px;">Priority</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>2.1</td>
+                <td><strong>GET /api/statistics.php - No parameters</strong></td>
+                <td class="test-steps">1. Send GET request
+2. Verify status 200
+3. Verify JSON structure</td>
+                <td class="expected-result">✓ Status 200
+✓ Returns statistics for all tasks
+✓ JSON format valid</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>2.2</td>
+                <td><strong>GET /api/statistics.php - With project ID</strong></td>
+                <td class="test-steps">1. Send GET ?proj_id=test-uuid
+2. Verify status 200
+3. Verify project filtering</td>
+                <td class="expected-result">✓ Status 200
+✓ Statistics filtered by project</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-medium">Medium</td>
+            </tr>
+            <tr>
+                <td>2.3</td>
+                <td><strong>GET /api/events.php - No filters</strong></td>
+                <td class="test-steps">1. Send GET request
+2. Verify status 200
+3. Verify all tasks returned</td>
+                <td class="expected-result">✓ Status 200
+✓ Returns array of all tasks
+✓ All fields present</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>2.4</td>
+                <td><strong>GET /api/events.php - Filter by status</strong></td>
+                <td class="test-steps">1. Send GET ?status=open,progress
+2. Verify filtering works</td>
+                <td class="expected-result">✓ Status 200
+✓ Only open/progress tasks</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>2.5-2.23</td>
+                <td colspan="6"><em>Additional 19 API tests - See CSV file for complete details</em></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>🔗 Test Suite 3: Integration Tests (11 tests)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 80px;">Test ID</th>
+                <th style="width: 250px;">Test Case</th>
+                <th style="width: 300px;">Test Steps</th>
+                <th style="width: 300px;">Expected Result</th>
+                <th style="width: 150px;">Actual Result</th>
+                <th style="width: 80px;">Status</th>
+                <th style="width: 80px;">Priority</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>3.1</td>
+                <td><strong>Database Connection Test</strong></td>
+                <td class="test-steps">1. Load Database.php
+2. Get instance
+3. Test connection</td>
+                <td class="expected-result">✓ Connection succeeds
+✓ PDO object returned
+✓ No exceptions</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-critical">Critical</td>
+            </tr>
+            <tr>
+                <td>3.2</td>
+                <td><strong>CORS Headers Verification</strong></td>
+                <td class="test-steps">1. Send OPTIONS request
+2. Check headers
+3. Verify CORS configured</td>
+                <td class="expected-result">✓ All CORS headers present
+✓ Status 200 for OPTIONS</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-high">High</td>
+            </tr>
+            <tr>
+                <td>3.3-3.11</td>
+                <td colspan="6"><em>Additional 9 integration tests - See CSV file for complete details</em></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>🎯 Test Suite 4: Edge Cases (8 tests)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 80px;">Test ID</th>
+                <th style="width: 250px;">Test Case</th>
+                <th style="width: 300px;">Test Steps</th>
+                <th style="width: 300px;">Expected Result</th>
+                <th style="width: 150px;">Actual Result</th>
+                <th style="width: 80px;">Status</th>
+                <th style="width: 80px;">Priority</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>4.1</td>
+                <td><strong>Empty Results - No tasks</strong></td>
+                <td class="test-steps">1. Query empty project
+2. Verify handling
+3. Check response</td>
+                <td class="expected-result">✓ Status 200
+✓ Returns empty array []
+✓ No errors</td>
+                <td></td>
+                <td><span class="status-pending">Pending</span></td>
+                <td class="priority-medium">Medium</td>
+            </tr>
+            <tr>
+                <td>4.2-4.8</td>
+                <td colspan="6"><em>Additional 7 edge case tests - See CSV file for complete details</em></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="summary" style="margin-top: 40px;">
+        <h3>📝 Notes</h3>
+        <ul>
+            <li><strong>CSV File:</strong> Complete test cases available in <code>test_cases.csv</code> (can be opened in Excel)</li>
+            <li><strong>HTML File:</strong> This file provides visual overview of test documentation</li>
+            <li><strong>Status Legend:</strong>
+                <ul>
+                    <li><span class="status-pending">Pending</span> - Test not yet executed</li>
+                    <li><span class="status-pass">Pass</span> - Test passed successfully</li>
+                    <li><span class="status-fail">Fail</span> - Test failed</li>
+                </ul>
+            </li>
+            <li><strong>Priority Legend:</strong>
+                <ul>
+                    <li><span class="priority-critical">Critical</span> - Must pass before release</li>
+                    <li><span class="priority-high">High</span> - Core functionality</li>
+                    <li><span class="priority-medium">Medium</span> - Important features</li>
+                    <li><span class="priority-low">Low</span> - Nice to have</li>
+                </ul>
+            </li>
+        </ul>
+        
+        <h3>🚀 How to Use</h3>
+        <ol>
+            <li><strong>Excel/Google Sheets:</strong> Open <code>test_cases.csv</code> in Excel or Google Sheets</li>
+            <li><strong>Update Status:</strong> Change Status column to "Pass" or "Fail" after testing</li>
+            <li><strong>Record Results:</strong> Fill in "Actual Result" column with observations</li>
+            <li><strong>Track Progress:</strong> Use filters to see Pending/Pass/Fail tests</li>
+            <li><strong>Generate Report:</strong> Use Excel charts to visualize test coverage</li>
+        </ol>
+    </div>
+
+</body>
+</html>

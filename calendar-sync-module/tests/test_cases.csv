@@ -1,0 +1,282 @@
+Test ID,Test Suite,Test Case,Test Steps,Expected Result,Actual Result,Status,Priority,Notes
+1.1,Model Tests,getEvents() - Get all tasks,"1. Create CalendarEvent instance
+2. Call getEvents() without filters
+3. Verify response structure","✓ Returns array
+✓ Each item has: proj_id, task_id, task_name, status, priority, proj_name
+✓ Status values: open, progress, done, reopen, close
+✓ Priority values: high, medium, low",,Pending,High,Basic functionality test
+1.2,Model Tests,getEvents() - Filter by status,"1. Create CalendarEvent instance
+2. Call getEvents(['status' => ['open', 'progress']])
+3. Verify all returned tasks have status 'open' or 'progress'","✓ Only returns tasks with status 'open' or 'progress'
+✓ Excludes done, close, reopen tasks",,Pending,High,Filter validation
+1.3,Model Tests,getEvents() - Filter by date range,"1. Create CalendarEvent instance
+2. Call getEvents(['start_date' => '2025-01-01', 'end_date' => '2025-12-31'])
+3. Verify all tasks are within date range","✓ Only returns tasks within date range
+✓ Tasks outside range are excluded",,Pending,Medium,Date range validation
+1.4,Model Tests,getEvents() - Filter by project,"1. Create CalendarEvent instance
+2. Call getEvents(['proj_id' => 'test-uuid'])
+3. Verify all tasks belong to specified project","✓ Only returns tasks from specified project
+✓ All results have same proj_id",,Pending,High,Project filter validation
+1.5,Model Tests,getEvents() - Filter by priority,"1. Create CalendarEvent instance
+2. Call getEvents(['priority' => ['high', 'medium']])
+3. Verify all tasks have high or medium priority","✓ Only returns tasks with priority high or medium
+✓ Excludes low priority tasks",,Pending,Medium,Priority filter validation
+1.6,Model Tests,getEventsByDateRange() - Calendar view,"1. Create CalendarEvent instance
+2. Call getEventsByDateRange('2025-12-01', '2025-12-31')
+3. Verify returned tasks overlap with date range","✓ Returns tasks overlapping with date range
+✓ Includes tasks starting in range
+✓ Includes tasks ending in range
+✓ Includes tasks spanning entire range",,Pending,High,Calendar view functionality
+1.7,Model Tests,getUpcomingTasks() - Get tasks due soon,"1. Create CalendarEvent instance
+2. Call getUpcomingTasks(7)
+3. Verify tasks are due within 7 days and have correct status","✓ Only returns tasks with status: open, progress, reopen
+✓ Only returns tasks due within next 7 days
+✓ Includes days_remaining field
+✓ Ordered by endAt ASC",,Pending,High,Upcoming tasks logic
+1.8,Model Tests,getUpcomingTasks() - Filter by user,"1. Create CalendarEvent instance
+2. Call getUpcomingTasks(7, 'user-uuid')
+3. Verify only tasks assigned to user are returned","✓ Only returns tasks assigned to specified user
+✓ Uses task_assignees table for filtering",,Pending,Medium,User filter with upcoming
+1.9,Model Tests,getOverdueTasks() - Get overdue tasks,"1. Create CalendarEvent instance
+2. Call getOverdueTasks()
+3. Verify all tasks are past deadline and incomplete","✓ Only returns incomplete tasks (not done/close)
+✓ Only returns tasks where endAt < NOW()
+✓ Includes days_overdue field
+✓ Ordered by endAt ASC",,Pending,High,Overdue logic validation
+1.10,Model Tests,getTasksByUser() - Get user's tasks,"1. Create CalendarEvent instance
+2. Call getTasksByUser('user-uuid')
+3. Verify all returned tasks are assigned to user","✓ Returns all tasks assigned to user
+✓ Uses INNER JOIN with task_assignees
+✓ Includes project information",,Pending,High,User task retrieval
+1.11,Model Tests,getTasksByProject() - Get project tasks with assignees,"1. Create CalendarEvent instance
+2. Call getTasksByProject('project-uuid')
+3. Verify all tasks include assignee information","✓ Returns all tasks in project
+✓ Includes comma-separated assignee names
+✓ Includes comma-separated assignee UIDs
+✓ Grouped by task",,Pending,High,Project tasks with assignees
+1.12,Model Tests,getStatistics() - Get task statistics,"1. Create CalendarEvent instance
+2. Call getStatistics()
+3. Verify statistics include all required fields","✓ Returns single row with statistics
+✓ Includes: total, completed, in_progress, open, closed, reopened, overdue
+✓ All counts are integers",,Pending,High,Statistics calculation
+1.13,Model Tests,getStatistics() - Filter by project,"1. Create CalendarEvent instance
+2. Call getStatistics('project-uuid')
+3. Verify statistics only count tasks from specified project","✓ Only counts tasks from specified project
+✓ All statistics reflect project scope",,Pending,Medium,Project-specific statistics
+2.1,API Tests,GET /api/statistics.php - No parameters,"1. Send GET request to http://localhost:8000/api/statistics.php
+2. Verify response status 200
+3. Verify response JSON structure","✓ Status code: 200
+✓ Returns JSON with success: true
+✓ Includes data object with: total, completed, in_progress, open, closed, reopened, overdue",,Pending,High,Basic statistics API
+2.2,API Tests,GET /api/statistics.php - With project ID,"1. Send GET request with ?proj_id=test-uuid
+2. Verify response status 200
+3. Verify statistics only for specified project","✓ Status code: 200
+✓ Returns statistics filtered by project
+✓ Response format consistent",,Pending,Medium,Project statistics API
+2.3,API Tests,GET /api/events.php - No filters,"1. Send GET request to http://localhost:8000/api/events.php
+2. Verify response status 200
+3. Verify all tasks returned","✓ Status code: 200
+✓ Returns array of all tasks
+✓ Each task has all required fields",,Pending,High,All events retrieval
+2.4,API Tests,GET /api/events.php - Filter by status,"1. Send GET request with ?status=open,progress
+2. Verify response status 200
+3. Verify all tasks have status open or progress","✓ Status code: 200
+✓ Only open and progress tasks returned
+✓ No done/close tasks in results",,Pending,High,Status filter API
+2.5,API Tests,GET /api/events.php - Filter by project,"1. Send GET request with ?proj_id=test-uuid
+2. Verify response status 200
+3. Verify all tasks belong to project","✓ Status code: 200
+✓ All tasks have same proj_id
+✓ No tasks from other projects",,Pending,High,Project filter API
+2.6,API Tests,GET /api/events.php - Multiple filters,"1. Send GET request with ?status=open&priority=high&proj_id=test-uuid
+2. Verify response status 200
+3. Verify all filters applied","✓ Status code: 200
+✓ Tasks match all filter criteria
+✓ Proper AND logic between filters",,Pending,Medium,Multiple filters combination
+2.7,API Tests,GET /api/events.php - Filter by user,"1. Send GET request with ?uid=user-uuid
+2. Verify response status 200
+3. Verify only user's tasks returned","✓ Status code: 200
+✓ Only tasks assigned to user
+✓ Uses task_assignees relationship",,Pending,Medium,User filter API
+2.8,API Tests,GET /api/calendar.php - Basic date range,"1. Send GET request with ?start_date=2025-12-01&end_date=2025-12-31
+2. Verify response status 200
+3. Verify tasks overlap with date range","✓ Status code: 200
+✓ All tasks overlap with December 2025
+✓ Includes tasks starting, ending, or spanning range",,Pending,High,Calendar view API
+2.9,API Tests,GET /api/calendar.php - With project filter,"1. Send GET request with date range and ?proj_id=test-uuid
+2. Verify response status 200
+3. Verify tasks filtered by project","✓ Status code: 200
+✓ Tasks from specified project only
+✓ Within date range",,Pending,Medium,Calendar with project filter
+2.10,API Tests,GET /api/calendar.php - Missing required params,"1. Send GET request without start_date or end_date
+2. Verify response status 400
+3. Verify error message","✓ Status code: 400
+✓ Returns error message about missing parameters
+✓ success: false",,Pending,High,Required parameters validation
+2.11,API Tests,GET /api/upcoming.php - Default 7 days,"1. Send GET request to http://localhost:8000/api/upcoming.php
+2. Verify response status 200
+3. Verify tasks due within 7 days","✓ Status code: 200
+✓ All tasks due within next 7 days
+✓ Only status: open, progress, reopen
+✓ Includes days_remaining field",,Pending,High,Upcoming tasks default
+2.12,API Tests,GET /api/upcoming.php - Custom days,"1. Send GET request with ?days=14
+2. Verify response status 200
+3. Verify tasks due within 14 days","✓ Status code: 200
+✓ All tasks due within next 14 days
+✓ Custom days parameter applied",,Pending,Medium,Custom days parameter
+2.13,API Tests,GET /api/upcoming.php - Filter by user,"1. Send GET request with ?days=7&uid=user-uuid
+2. Verify response status 200
+3. Verify only user's upcoming tasks","✓ Status code: 200
+✓ Only tasks assigned to specified user
+✓ Within 7 days deadline",,Pending,Medium,User's upcoming tasks
+2.14,API Tests,GET /api/upcoming.php - Filter by project,"1. Send GET request with ?days=7&proj_id=test-uuid
+2. Verify response status 200
+3. Verify project's upcoming tasks","✓ Status code: 200
+✓ Only tasks from specified project
+✓ Within 7 days deadline",,Pending,Medium,Project's upcoming tasks
+2.15,API Tests,GET /api/overdue.php - All overdue tasks,"1. Send GET request to http://localhost:8000/api/overdue.php
+2. Verify response status 200
+3. Verify all tasks are overdue","✓ Status code: 200
+✓ All tasks have endAt < NOW()
+✓ No done/close status tasks
+✓ Includes days_overdue field",,Pending,High,All overdue tasks
+2.16,API Tests,GET /api/overdue.php - User's overdue tasks,"1. Send GET request with ?uid=user-uuid
+2. Verify response status 200
+3. Verify only user's overdue tasks","✓ Status code: 200
+✓ Only tasks assigned to user
+✓ All tasks are overdue",,Pending,Medium,User's overdue tasks
+2.17,API Tests,GET /api/overdue.php - Project overdue tasks,"1. Send GET request with ?proj_id=test-uuid
+2. Verify response status 200
+3. Verify project's overdue tasks","✓ Status code: 200
+✓ Only tasks from project
+✓ All tasks are overdue",,Pending,Medium,Project's overdue tasks
+2.18,API Tests,GET /api/overdue.php - User in project,"1. Send GET request with ?uid=user-uuid&proj_id=test-uuid
+2. Verify response status 200
+3. Verify user's overdue tasks in project","✓ Status code: 200
+✓ Tasks match both user and project
+✓ All tasks are overdue",,Pending,Low,Combined user and project filter
+2.19,API Tests,GET /api/user-tasks.php - Missing uid,"1. Send GET request without uid parameter
+2. Verify response status 400
+3. Verify error message","✓ Status code: 400
+✓ Error message: User ID required
+✓ success: false",,Pending,High,Required uid validation
+2.20,API Tests,GET /api/user-tasks.php - User's all tasks,"1. Send GET request with ?uid=user-uuid
+2. Verify response status 200
+3. Verify all tasks assigned to user","✓ Status code: 200
+✓ Returns object with uid, total, tasks
+✓ All tasks assigned to specified user",,Pending,High,User tasks retrieval
+2.21,API Tests,GET /api/user-tasks.php - User tasks in project,"1. Send GET request with ?uid=user-uuid&proj_id=test-uuid
+2. Verify response status 200
+3. Verify user's tasks in project","✓ Status code: 200
+✓ Tasks match both user and project
+✓ Proper filtering applied",,Pending,Medium,User tasks in specific project
+2.22,API Tests,GET /api/project-tasks.php - Missing proj_id,"1. Send GET request without proj_id parameter
+2. Verify response status 400
+3. Verify error message","✓ Status code: 400
+✓ Error message: Project ID required
+✓ success: false",,Pending,High,Required proj_id validation
+2.23,API Tests,GET /api/project-tasks.php - Project tasks with assignees,"1. Send GET request with ?proj_id=test-uuid
+2. Verify response status 200
+3. Verify tasks include assignee information","✓ Status code: 200
+✓ Returns object with proj_id, total, tasks
+✓ Each task includes assignees and assignee_ids fields
+✓ Assignee names comma-separated",,Pending,High,Project tasks with assignees
+3.1,Integration Tests,Database Connection Test,"1. Load config/Database.php
+2. Call Database::getInstance()
+3. Call getConnection()
+4. Verify PDO object returned","✓ Connection succeeds
+✓ PDO object returned
+✓ No exceptions thrown
+✓ Can execute test query",,Pending,Critical,Database connectivity
+3.2,Integration Tests,CORS Headers Verification,"1. Send OPTIONS request to any API endpoint
+2. Check response headers
+3. Verify all required CORS headers present","✓ Access-Control-Allow-Origin: *
+✓ Access-Control-Allow-Methods present
+✓ Access-Control-Allow-Headers: Content-Type
+✓ Status 200 for OPTIONS",,Pending,High,CORS configuration
+3.3,Integration Tests,Error Handling - Invalid UUID,"1. Send request with invalid proj_id format
+2. Verify proper error handling
+3. Check error response format","✓ Returns proper error or empty array
+✓ No 500 errors
+✓ Handles gracefully",,Pending,Medium,Input validation
+3.4,Integration Tests,Error Handling - SQL Injection,"1. Send request with SQL injection attempt in parameter
+2. Verify protected by prepared statements
+3. Check response","✓ No SQL injection successful
+✓ Prepared statements protect
+✓ Returns safe response",,Pending,Critical,Security validation
+3.5,Integration Tests,Error Handling - Database Failure,"1. Simulate database connection failure
+2. Send API request
+3. Verify error response","✓ Status code: 500
+✓ Error message returned
+✓ success: false
+✓ No sensitive info leaked",,Pending,High,Error handling robustness
+3.6,Integration Tests,Response Format Consistency - Success,"1. Test all 7 API endpoints
+2. Verify success response format
+3. Check all required fields","✓ All return: success, data
+✓ Content-Type: application/json
+✓ Valid JSON structure",,Pending,High,Response format standardization
+3.7,Integration Tests,Response Format Consistency - Error,"1. Trigger errors from all endpoints
+2. Verify error response format
+3. Check consistency","✓ All return: success: false, message
+✓ Consistent error structure
+✓ Helpful error messages",,Pending,High,Error response standardization
+3.8,Integration Tests,Performance - Small Dataset (<100 tasks),"1. Query with < 100 tasks in database
+2. Measure response time
+3. Verify acceptable performance","✓ Response time < 100ms
+✓ No performance issues
+✓ Quick response",,Pending,Medium,Performance baseline
+3.9,Integration Tests,Performance - Medium Dataset (100-1000 tasks),"1. Query with 100-1000 tasks
+2. Measure response time
+3. Verify acceptable performance","✓ Response time < 500ms
+✓ Acceptable performance
+✓ No timeout",,Pending,Medium,Performance scaling
+3.10,Integration Tests,Performance - Large Dataset (>1000 tasks),"1. Query with > 1000 tasks
+2. Measure response time
+3. Verify acceptable performance","✓ Response time < 2000ms
+✓ No timeout errors
+✓ Consider pagination if slower",,Pending,Low,Large dataset handling
+3.11,Integration Tests,Performance - Complex Query,"1. Test /api/project-tasks.php with many assignees
+2. Measure response time with JOINs
+3. Verify performance","✓ Response time < 1000ms
+✓ GROUP_CONCAT performs well
+✓ No query timeout",,Pending,Medium,Complex query performance
+4.1,Edge Cases,Empty Results - Project with no tasks,"1. Query events with proj_id of empty project
+2. Verify proper handling
+3. Check response format","✓ Status code: 200
+✓ Returns: {success: true, data: []}
+✓ Empty array, not error",,Pending,Medium,Empty result handling
+4.2,Edge Cases,Empty Results - No upcoming tasks,"1. Query upcoming tasks when none exist
+2. Verify proper handling
+3. Check response format","✓ Status code: 200
+✓ Returns empty array
+✓ No errors thrown",,Pending,Medium,No results handling
+4.3,Edge Cases,NULL Values - Task with NULL startAt,"1. Query task with NULL startAt field
+2. Verify NULL handling in response
+3. Check JSON format","✓ Field returned as null in JSON
+✓ No errors thrown
+✓ Valid JSON structure",,Pending,Low,NULL field handling
+4.4,Edge Cases,NULL Values - Project with NULL description,"1. Query project with NULL description
+2. Verify NULL handling
+3. Check response","✓ Handled gracefully
+✓ No errors
+✓ Returns null or empty string",,Pending,Low,NULL handling consistency
+4.5,Edge Cases,Special Characters - Task name with quotes,"1. Create/query task with name: ""Task ""Special"" Name""
+2. Verify proper escaping
+3. Check JSON format","✓ Properly escaped in JSON
+✓ No JSON parse errors
+✓ Special chars preserved",,Pending,Medium,Special character handling
+4.6,Edge Cases,Special Characters - Content with newlines,"1. Query task with content containing newlines
+2. Verify newlines preserved
+3. Check JSON format","✓ Newlines preserved
+✓ Valid JSON
+✓ Content readable",,Pending,Low,Newline handling
+4.7,Edge Cases,Date Boundary - Task ending today,"1. Query task ending today at 23:59:59
+2. Check if upcoming or overdue
+3. Verify boundary logic","✓ Correct classification based on NOW()
+✓ Consistent logic
+✓ Proper comparison",,Pending,Medium,Date boundary logic
+4.8,Edge Cases,Date Boundary - Task spanning multiple months,"1. Query calendar with task spanning Nov-Jan
+2. Calendar range: Dec 1-31
+3. Verify task included","✓ Task included in results
+✓ Overlap detection works
+✓ Proper date range logic",,Pending,Medium,Date range overlap

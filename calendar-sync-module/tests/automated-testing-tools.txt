@@ -1,0 +1,351 @@
+=================================================================
+CÔNG CỤ TỰ ĐỘNG TEST PHP MODULE
+=================================================================
+
+1. PHPUnit - Phổ biến nhất ⭐⭐⭐⭐⭐
+=================================================================
+Website: https://phpunit.de/
+Mô tả: Framework unit testing chuẩn cho PHP
+
+Cài đặt:
+composer require --dev phpunit/phpunit
+
+Ví dụ test file:
+<?php
+// tests/CalendarEventTest.php
+use PHPUnit\Framework\TestCase;
+
+class CalendarEventTest extends TestCase
+{
+    private $model;
+    
+    protected function setUp(): void
+    {
+        require_once __DIR__ . '/../models/CalendarEvent.php';
+        $this->model = new CalendarEvent();
+    }
+    
+    public function testGetEventsReturnsArray()
+    {
+        $result = $this->model->getEvents();
+        $this->assertIsArray($result);
+    }
+    
+    public function testGetStatisticsStructure()
+    {
+        $result = $this->model->getStatistics();
+        $this->assertArrayHasKey('total', $result);
+        $this->assertArrayHasKey('completed', $result);
+        $this->assertIsInt($result['total']);
+    }
+}
+
+Chạy tests:
+vendor/bin/phpunit tests/
+
+
+2. Pest PHP - Modern & Elegant ⭐⭐⭐⭐⭐
+=================================================================
+Website: https://pestphp.com/
+Mô tả: Testing framework đẹp hơn, syntax đơn giản hơn PHPUnit
+
+Cài đặt:
+composer require pestphp/pest --dev --with-all-dependencies
+./vendor/bin/pest --init
+
+Ví dụ test:
+<?php
+// tests/CalendarEventTest.php
+use function Pest\Laravel\{get};
+
+it('returns array from getEvents', function () {
+    $model = new CalendarEvent();
+    $result = $model->getEvents();
+    expect($result)->toBeArray();
+});
+
+it('has correct statistics structure', function () {
+    $model = new CalendarEvent();
+    $result = $model->getStatistics();
+    expect($result)->toHaveKeys(['total', 'completed', 'in_progress']);
+});
+
+Chạy tests:
+./vendor/bin/pest
+
+
+3. Codeception - Full-stack testing ⭐⭐⭐⭐
+=================================================================
+Website: https://codeception.com/
+Mô tả: Hỗ trợ Unit, Functional, Acceptance testing
+
+Cài đặt:
+composer require "codeception/codeception" --dev
+vendor/bin/codecept bootstrap
+
+Ví dụ test:
+<?php
+// tests/unit/CalendarEventTest.php
+class CalendarEventTest extends \Codeception\Test\Unit
+{
+    public function testGetEvents()
+    {
+        $model = new CalendarEvent();
+        $result = $model->getEvents();
+        $this->assertIsArray($result);
+    }
+}
+
+Chạy tests:
+vendor/bin/codecept run unit
+
+
+4. Behat - BDD Testing ⭐⭐⭐
+=================================================================
+Website: https://docs.behat.org/
+Mô tả: Behavior-Driven Development, viết test bằng ngôn ngữ tự nhiên
+
+Cài đặt:
+composer require --dev behat/behat
+
+Feature file:
+# features/statistics.feature
+Feature: Statistics API
+  In order to view task statistics
+  As a user
+  I need to be able to get statistics data
+
+  Scenario: Get all statistics
+    Given I send a GET request to "/api/statistics.php"
+    Then the response status code should be 200
+    And the response should contain "total"
+
+Chạy tests:
+vendor/bin/behat
+
+
+5. PHPSpec - Spec BDD ⭐⭐⭐
+=================================================================
+Website: http://www.phpspec.net/
+Mô tả: SpecBDD framework
+
+Cài đặt:
+composer require --dev phpspec/phpspec
+
+Chạy tests:
+vendor/bin/phpspec run
+
+
+6. Infection - Mutation Testing ⭐⭐⭐⭐
+=================================================================
+Website: https://infection.github.io/
+Mô tả: Kiểm tra chất lượng unit tests
+
+Cài đặt:
+composer require --dev infection/infection
+
+Chạy:
+vendor/bin/infection
+
+
+7. PHPCS + PHPMD - Code Quality ⭐⭐⭐⭐
+=================================================================
+Website: https://github.com/squizlabs/PHP_CodeSniffer
+Mô tả: Check coding standards và mess detection
+
+Cài đặt:
+composer require --dev squizlabs/php_codesniffer
+composer require --dev phpmd/phpmd
+
+Chạy:
+vendor/bin/phpcs --standard=PSR12 models/
+vendor/bin/phpmd models/ text cleancode,codesize,controversial,design
+
+
+8. PHP-CS-Fixer - Auto fix code style ⭐⭐⭐⭐
+=================================================================
+Website: https://github.com/PHP-CS-Fixer/PHP-CS-Fixer
+Mô tả: Tự động fix coding standards
+
+Cài đặt:
+composer require --dev friendsofphp/php-cs-fixer
+
+Chạy:
+vendor/bin/php-cs-fixer fix models/
+
+
+9. PHPStan - Static Analysis ⭐⭐⭐⭐⭐
+=================================================================
+Website: https://phpstan.org/
+Mô tả: Tìm bugs không cần chạy code
+
+Cài đặt:
+composer require --dev phpstan/phpstan
+
+Chạy:
+vendor/bin/phpstan analyse models/ api/
+
+
+10. Psalm - Static Analysis Alternative ⭐⭐⭐⭐
+=================================================================
+Website: https://psalm.dev/
+Mô tả: Alternative cho PHPStan
+
+Cài đặt:
+composer require --dev vimeo/psalm
+
+Chạy:
+vendor/bin/psalm
+
+
+11. PHP Code Coverage - Test Coverage ⭐⭐⭐⭐
+=================================================================
+Mô tả: Đo độ phủ test (built-in PHPUnit)
+
+Chạy:
+vendor/bin/phpunit --coverage-html coverage/
+# Mở coverage/index.html trong browser
+
+
+12. Newman (Postman CLI) - API Testing ⭐⭐⭐⭐⭐
+=================================================================
+Website: https://www.postman.com/
+Mô tả: Tự động test REST APIs
+
+Cài đặt:
+npm install -g newman
+
+Export Postman collection rồi chạy:
+newman run calendar-sync-apis.postman_collection.json
+
+
+13. Apache JMeter - Performance Testing ⭐⭐⭐
+=================================================================
+Website: https://jmeter.apache.org/
+Mô tả: Load testing và performance testing
+
+Download và setup test plan cho APIs
+
+
+14. Selenium - Browser Automation ⭐⭐⭐⭐
+=================================================================
+Website: https://www.selenium.dev/
+Mô tả: Test frontend tương tác với PHP APIs
+
+Cài đặt:
+composer require --dev php-webdriver/webdriver
+
+
+=================================================================
+KHUYẾN NGHỊ CHO CALENDAR SYNC MODULE
+=================================================================
+
+ƯU TIÊN 1: PHPUnit (Unit Tests) ⭐⭐⭐⭐⭐
+- Test tất cả methods trong CalendarEvent model
+- Test API responses
+- Dễ setup, phổ biến nhất
+→ KHUYÊN DÙNG!
+
+ƯU TIÊN 2: PHPStan (Static Analysis) ⭐⭐⭐⭐⭐
+- Tìm bugs trước khi chạy code
+- Check type safety
+- Không cần viết test
+→ NHANH & HIỆU QUẢ!
+
+ƯU TIÊN 3: Newman/Postman (API Tests) ⭐⭐⭐⭐
+- Test 7 API endpoints tự động
+- Dễ setup collection
+- Chạy trong CI/CD
+→ TỐT CHO APIs!
+
+ƯU TIÊN 4: PHP Code Coverage ⭐⭐⭐⭐
+- Đo độ phủ test
+- Tìm code chưa được test
+- Built-in PHPUnit
+→ ĐẢM BẢO CHẤT LƯỢNG!
+
+
+=================================================================
+SETUP NHANH - CHỌN 1 TRONG 3 OPTIONS
+=================================================================
+
+OPTION 1: Setup PHPUnit (Khuyên dùng cho beginners)
+-----------------------------------------------------------
+cd d:/DuAnCaNhan/server-side/calendar-sync-module
+composer init
+composer require --dev phpunit/phpunit
+mkdir tests
+# Tạo file tests/CalendarEventTest.php (xem mẫu bên dưới)
+vendor/bin/phpunit tests/
+
+
+OPTION 2: Setup Pest (Modern, đẹp hơn)
+-----------------------------------------------------------
+cd d:/DuAnCaNhan/server-side/calendar-sync-module
+composer init
+composer require pestphp/pest --dev --with-all-dependencies
+./vendor/bin/pest --init
+# Tạo file tests/CalendarEventTest.php
+./vendor/bin/pest
+
+
+OPTION 3: Setup PHPStan (Không cần viết test)
+-----------------------------------------------------------
+cd d:/DuAnCaNhan/server-side/calendar-sync-module
+composer init
+composer require --dev phpstan/phpstan
+vendor/bin/phpstan analyse models/ api/ --level=5
+
+
+=================================================================
+CI/CD INTEGRATION
+=================================================================
+
+GitHub Actions (.github/workflows/tests.yml):
+-----------------------------------------------------------
+name: PHP Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+      - run: composer install
+      - run: vendor/bin/phpunit tests/
+      - run: vendor/bin/phpstan analyse models/ api/
+
+
+=================================================================
+SO SÁNH TOOLS
+=================================================================
+
+Tool          | Dễ setup | Hiệu quả | Phổ biến | Khuyên dùng
+PHPUnit       | ⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ✅ Yes
+Pest          | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   | ✅ Yes  
+PHPStan       | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ✅ Yes
+Newman        | ⭐⭐⭐⭐   | ⭐⭐⭐⭐   | ⭐⭐⭐⭐   | ✅ Yes
+Codeception   | ⭐⭐⭐     | ⭐⭐⭐⭐   | ⭐⭐⭐     | Maybe
+Behat         | ⭐⭐       | ⭐⭐⭐     | ⭐⭐⭐     | No
+Selenium      | ⭐⭐       | ⭐⭐⭐⭐   | ⭐⭐⭐⭐   | For frontend
+
+
+=================================================================
+KẾT LUẬN
+=================================================================
+
+COMBO HOÀN HẢO cho Calendar Sync Module:
+
+1️⃣ PHPUnit - Unit tests cho model methods
+2️⃣ PHPStan - Static analysis tìm bugs
+3️⃣ Newman - API endpoint testing
+4️⃣ Coverage - Đo độ phủ test
+
+Setup trong 5 phút:
+composer require --dev phpunit/phpunit phpstan/phpstan
+vendor/bin/phpunit tests/
+vendor/bin/phpstan analyse models/ api/
+
+✅ Done!
