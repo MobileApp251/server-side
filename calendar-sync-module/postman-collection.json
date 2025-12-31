@@ -1,0 +1,412 @@
+{
+  "info": {
+    "name": "Calendar Sync Module API",
+    "description": "Complete REST API collection for Calendar Sync Module",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "calendar-sync-module"
+  },
+  "item": [
+    {
+      "name": "Calendar",
+      "item": [
+        {
+          "name": "Get Events by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/calendar.php?start_date=2025-01-01&end_date=2025-01-31&proj_id=550e8400-e29b-41d4-a716-446655440000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "calendar.php"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2025-01-01",
+                  "description": "Start date (YYYY-MM-DD)"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2025-01-31",
+                  "description": "End date (YYYY-MM-DD)"
+                },
+                {
+                  "key": "proj_id",
+                  "value": "550e8400-e29b-41d4-a716-446655440000",
+                  "description": "Project UUID (optional)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retrieve calendar events within a specific date range"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Get Filtered Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/events.php?status=done,in_progress&priority=high&start_date=2025-01-01&end_date=2025-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events.php"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "done,in_progress",
+                  "description": "Comma-separated status values"
+                },
+                {
+                  "key": "priority",
+                  "value": "high",
+                  "description": "Comma-separated priority values"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2025-12-31"
+                },
+                {
+                  "key": "proj_id",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get events with advanced filtering"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Get User Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/user-tasks.php?uid=660e8400-e29b-41d4-a716-446655440000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user-tasks.php"],
+              "query": [
+                {
+                  "key": "uid",
+                  "value": "660e8400-e29b-41d4-a716-446655440000",
+                  "description": "User UUID (required)"
+                },
+                {
+                  "key": "proj_id",
+                  "value": "",
+                  "description": "Project UUID (optional)",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Project Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/project-tasks.php?proj_id=550e8400-e29b-41d4-a716-446655440000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "project-tasks.php"],
+              "query": [
+                {
+                  "key": "proj_id",
+                  "value": "550e8400-e29b-41d4-a716-446655440000",
+                  "description": "Project UUID (required)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Upcoming Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/upcoming.php?days=7",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upcoming.php"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "7",
+                  "description": "Number of days to look ahead (default: 7)"
+                },
+                {
+                  "key": "uid",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "proj_id",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Overdue Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/overdue.php",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "overdue.php"],
+              "query": [
+                {
+                  "key": "uid",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "proj_id",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Issues",
+      "item": [
+        {
+          "name": "Get Task Issues",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/issues.php?task_id=123&proj_id=550e8400-e29b-41d4-a716-446655440000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "issues.php"],
+              "query": [
+                {
+                  "key": "task_id",
+                  "value": "123",
+                  "description": "Task ID (required)"
+                },
+                {
+                  "key": "proj_id",
+                  "value": "550e8400-e29b-41d4-a716-446655440000",
+                  "description": "Project UUID (required)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Issue",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"task_id\": 123,\n  \"proj_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"issue_title\": \"Bug in authentication\",\n  \"issue_description\": \"Users cannot login with special characters in password\",\n  \"severity\": \"high\",\n  \"status\": \"open\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/issues.php",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "issues.php"]
+            }
+          }
+        },
+        {
+          "name": "Update Issue",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"issue_title\": \"Updated: Bug in authentication\",\n  \"issue_description\": \"Updated description\",\n  \"severity\": \"critical\",\n  \"status\": \"in_progress\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/issues.php",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "issues.php"]
+            }
+          }
+        },
+        {
+          "name": "Delete Issue",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/issues.php",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "issues.php"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get User Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications.php?uid=660e8400-e29b-41d4-a716-446655440000&limit=50&unread_only=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications.php"],
+              "query": [
+                {
+                  "key": "uid",
+                  "value": "660e8400-e29b-41d4-a716-446655440000",
+                  "description": "User UUID (required)"
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Max number of notifications (default: 50)"
+                },
+                {
+                  "key": "unread_only",
+                  "value": "false",
+                  "description": "Return only unread notifications"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"660e8400-e29b-41d4-a716-446655440000\",\n  \"task_id\": 123,\n  \"notification_type\": \"task_due_soon\",\n  \"message\": \"Your task 'Complete documentation' is due in 2 days\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications.php",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications.php"]
+            }
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notification_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications.php",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications.php"]
+            }
+          }
+        },
+        {
+          "name": "Mark All Notifications as Read",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"660e8400-e29b-41d4-a716-446655440000\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications.php",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications.php"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Statistics",
+      "item": [
+        {
+          "name": "Get Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/statistics.php",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "statistics.php"],
+              "query": [
+                {
+                  "key": "proj_id",
+                  "value": "",
+                  "description": "Filter by project UUID (optional)",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost/calendar-sync-module",
+      "type": "string"
+    }
+  ]
+}

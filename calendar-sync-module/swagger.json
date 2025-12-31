@@ -1,0 +1,612 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Calendar Sync Module API",
+    "description": "REST API documentation for Calendar Sync Module - A comprehensive task and calendar management system with notifications and issue tracking.\n\n## Features\n- Calendar event management\n- Task tracking and filtering\n- Issue management for tasks\n- User notifications\n- Task statistics and analytics\n- Project-based task organization",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost/calendar-sync-module",
+      "description": "Local development server"
+    },
+    {
+      "url": "https://api.example.com/calendar-sync-module",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Calendar",
+      "description": "Calendar view and date range queries"
+    },
+    {
+      "name": "Events",
+      "description": "Event management with advanced filtering"
+    },
+    {
+      "name": "Tasks",
+      "description": "Task retrieval by user and project"
+    },
+    {
+      "name": "Issues",
+      "description": "Task issue tracking and management"
+    },
+    {
+      "name": "Notifications",
+      "description": "User notification system"
+    },
+    {
+      "name": "Statistics",
+      "description": "Analytics and statistics"
+    }
+  ],
+  "paths": {
+    "/api/calendar.php": {
+      "get": {
+        "tags": ["Calendar"],
+        "summary": "Get events by date range",
+        "description": "Retrieve calendar events within a specific date range for calendar view",
+        "operationId": "getEventsByDateRange",
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "description": "Start date in YYYY-MM-DD format",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2025-01-01"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "description": "End date in YYYY-MM-DD format",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2025-01-31"
+            }
+          },
+          {
+            "name": "proj_id",
+            "in": "query",
+            "required": false,
+            "description": "Filter by project UUID",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/events.php": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get calendar events with filters",
+        "description": "Retrieve events with advanced filtering by status, priority, date range, and project",
+        "operationId": "getFilteredEvents",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Filter by status (comma-separated for multiple)",
+            "schema": {
+              "type": "string",
+              "example": "done,in_progress"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "proj_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "high,medium"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/issues.php": {
+      "get": {
+        "tags": ["Issues"],
+        "summary": "Get issues for a task",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "proj_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Issues"],
+        "summary": "Create a new issue",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["task_id", "proj_id", "issue_title"],
+                "properties": {
+                  "task_id": {"type": "integer"},
+                  "proj_id": {"type": "string", "format": "uuid"},
+                  "issue_title": {"type": "string"},
+                  "issue_description": {"type": "string"},
+                  "severity": {"type": "string", "enum": ["low", "medium", "high", "critical"]}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Issues"],
+        "summary": "Update an issue",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {"type": "integer"},
+                  "issue_title": {"type": "string"},
+                  "issue_description": {"type": "string"},
+                  "severity": {"type": "string"},
+                  "status": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Issues"],
+        "summary": "Delete an issue",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {"type": "integer"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          }
+        }
+      }
+    },
+    "/api/notifications.php": {
+      "get": {
+        "tags": ["Notifications"],
+        "summary": "Get user notifications",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50
+            }
+          },
+          {
+            "name": "unread_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Notifications"],
+        "summary": "Create a notification",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["uid", "task_id", "notification_type"],
+                "properties": {
+                  "uid": {"type": "string", "format": "uuid"},
+                  "task_id": {"type": "integer"},
+                  "notification_type": {"type": "string"},
+                  "message": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Notifications"],
+        "summary": "Mark notification(s) as read",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "notification_id": {"type": "integer"}
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "uid": {"type": "string", "format": "uuid"}
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          }
+        }
+      }
+    },
+    "/api/user-tasks.php": {
+      "get": {
+        "tags": ["Tasks"],
+        "summary": "Get tasks by user",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "proj_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/project-tasks.php": {
+      "get": {
+        "tags": ["Tasks"],
+        "summary": "Get tasks by project",
+        "parameters": [
+          {
+            "name": "proj_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/upcoming.php": {
+      "get": {
+        "tags": ["Tasks"],
+        "summary": "Get upcoming tasks",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 7
+            }
+          },
+          {
+            "name": "uid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "proj_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/overdue.php": {
+      "get": {
+        "tags": ["Tasks"],
+        "summary": "Get overdue tasks",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "proj_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/statistics.php": {
+      "get": {
+        "tags": ["Statistics"],
+        "summary": "Get statistics",
+        "parameters": [
+          {
+            "name": "proj_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "description": "Response data (structure varies by endpoint)"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  }
+}

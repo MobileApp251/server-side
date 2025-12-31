@@ -1,13 +1,29 @@
 <?php
 /**
- * Index file - API Documentation
+ * Index file - Swagger Documentation Entry Point
+ * This file serves the Swagger UI with proper CORS headers
  */
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+// Set CORS headers
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+// Read and serve the HTML file
+$htmlFile = __DIR__ . '/api-docs.html';
+if (file_exists($htmlFile)) {
+    header('Content-Type: text/html; charset=utf-8');
+    readfile($htmlFile);
+} else {
+    http_response_code(404);
+    echo "Documentation file not found.";
+}
+?>>
     <title>Calendar Sync Module - API Documentation</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
