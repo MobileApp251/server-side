@@ -120,18 +120,25 @@ public class MobileLoginController {
     ){
         try {
             Optional<User> userExist = userRepository.findByEmail(loginDTO.getEmail());
+            User userRes;
             if (userExist.isPresent()) {
-                return ResponseEntity.status(400).body("Email already in use!");
+                if (userExist.get().getPassword() != null) {
+                    return ResponseEntity.status(400).body("Email already in use!");
+                }
+                userRes = userExist.get();
             }
-            User user = new User();
-            user.setEmail(loginDTO.getEmail());
-            String encodedPassword = passwordEncoder.encode(loginDTO.getPassword());
-            user.setPassword(encodedPassword);
+            else {
+                userRes = new User();
+                userRes.setEmail(loginDTO.getEmail());
+            }
 
-            User userRes = userRepository.save(user);
+            String encodedPassword = passwordEncoder.encode(loginDTO.getPassword());
+            userRes.setPassword(encodedPassword);
+
+            User userResp = userRepository.save(userRes);
             UsernamePasswordAuthenticationToken
                     authentication = new UsernamePasswordAuthenticationToken(
-                    userRes.getUid(), userRes.getPassword(), Collections.emptyList()
+                    userResp.getUid(), userResp.getPassword(), Collections.emptyList()
             );
 
             String jwtToken = jwtTokenProvider.generateToken(authentication);

@@ -27,10 +27,18 @@ public class UserService {
     public UserDTO createUser(
           @Email(message = "Invalid email") String email
     ) {
-        User user = new User();
-        user.setEmail(email);
-        user.set_google_login(true);
-        User newUser =  userRepository.save(user);
+        Optional<User> user = userRepository.findByEmail(email);
+        User userRes;
+        if (user.isPresent()) {
+            userRes = user.get();
+            userRes.set_google_login(true);
+            return mapper.toDTO(userRepository.save(userRes));
+        }
+
+        userRes = new User();
+        userRes.setEmail(email);
+        userRes.set_google_login(true);
+        User newUser =  userRepository.save(userRes);
         return mapper.toDTO(newUser);
     }
 
