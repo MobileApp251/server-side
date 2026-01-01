@@ -112,7 +112,7 @@ public class TaskController {
 
             return ResponseEntity.ok(taskDTO);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Internal Error!");
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
