@@ -54,8 +54,8 @@ public class TaskService {
         assignRepository.save(newAssignment);
     }
 
-    public List<TaskDTO> getAllTasks(){
-        List<Task> tasks = taskRepository.findAll();
+    public List<TaskDTO> getAllTasks(String uid){
+        List<Task> tasks = taskRepository.getAllTasksByUserId(UUID.fromString(uid));
 
         return tasks.stream()
                 .map(taskMapper::toDTO)

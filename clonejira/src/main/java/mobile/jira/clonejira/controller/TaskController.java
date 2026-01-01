@@ -7,6 +7,7 @@ import java.util.UUID;
 import mobile.jira.clonejira.dto.task.TaskAssigneeGroupDTO;
 import mobile.jira.clonejira.dto.task.TaskUpdateDTO;
 import mobile.jira.clonejira.entity.Project;
+import mobile.jira.clonejira.entity.User;
 import mobile.jira.clonejira.repository.ProjectRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -64,9 +65,12 @@ public class TaskController {
     }
 
     @GetMapping()
-    public ResponseEntity<?> getAllTasks(){
+    public ResponseEntity<?> getAllTasks(
+            @AuthenticationPrincipal UserDetails userDetails
+            ){
         try {
-            return ResponseEntity.ok(taskService.getAllTasks());
+            String uid = userDetails.getUsername();
+            return ResponseEntity.ok(taskService.getAllTasks(uid));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return ResponseEntity.status(500).body("Internal Error!");
