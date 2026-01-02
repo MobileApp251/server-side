@@ -54,6 +54,10 @@ public class TaskService {
         assignRepository.save(newAssignment);
     }
 
+    public void unassignTask(String uid, String proj_id, Integer task_id) throws BadRequestException {
+        assignRepository.deleteById(new TaskAssigneeId(uid, proj_id, task_id));
+    }
+
     public List<TaskDTO> getAllTasks(String uid){
         List<Task> tasks = taskRepository.getAllTasksByUserId(UUID.fromString(uid));
 

@@ -1,8 +1,13 @@
 package mobile.jira.clonejira.controller;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import mobile.jira.clonejira.dto.project.*;
+import mobile.jira.clonejira.entity.User;
+import mobile.jira.clonejira.enums.ProjectRole;
+import mobile.jira.clonejira.repository.ParticipateRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +23,7 @@ import mobile.jira.clonejira.service.ProjectService;
 @SecurityRequirement(name = "bearerAuth")
 public class ProjectController {
     private final ProjectService projectService;
+    private final ParticipateRepository participateRepository;
 
     @PostMapping()
     public ResponseEntity<?> createNewProject(
@@ -105,6 +111,24 @@ public class ProjectController {
     ){
         try {
             return ResponseEntity.ok(projectService.updateProject(project_id, dto));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Error!");
+        }
+    }
+    @DeleteMapping("/remove/{project_id}/{uid}")
+    public ResponseEntity<?> removeMemberFromProject(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable("project_id") String project_id,
+            @PathVariable("uid") String uid
+    ){
+        try {
+            String owner = userDetails.getUsername();
+            Optional<User> user = participateRepository.checkLeader(UUID.fromString(owner), ProjectRole.LEADER);
+            if (user.isEmpty()) {
+                return ResponseEntity.status(403).body("Forbidden!");
+            }
+            projectService.removeMember(project_id, uid);
+            return ResponseEntity.ok("Remove member from project with id: " + project_id);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal Error!");
         }

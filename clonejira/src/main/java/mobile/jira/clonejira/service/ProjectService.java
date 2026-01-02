@@ -136,4 +136,8 @@ public class ProjectService {
         }
         projectRepository.deleteById(UUID.fromString(project_id));
     }
+
+    public void removeMember(String proj_id, String uid) {
+        participateRepository.deleteById(new ProjectMemberId(uid, proj_id));
+    }
 }

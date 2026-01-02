@@ -1,4 +1,4 @@
-package mobile.jira.clonejira.dto.auth;
+package mobile.jira.clonejira.dto.notification;
 
 import lombok.Data;
 

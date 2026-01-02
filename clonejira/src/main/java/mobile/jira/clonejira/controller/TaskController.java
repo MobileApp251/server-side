@@ -8,6 +8,8 @@ import mobile.jira.clonejira.dto.task.TaskAssigneeGroupDTO;
 import mobile.jira.clonejira.dto.task.TaskUpdateDTO;
 import mobile.jira.clonejira.entity.Project;
 import mobile.jira.clonejira.entity.User;
+import mobile.jira.clonejira.enums.ProjectRole;
+import mobile.jira.clonejira.repository.ParticipateRepository;
 import mobile.jira.clonejira.repository.ProjectRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +29,7 @@ import mobile.jira.clonejira.dto.task.TaskDTO;
 public class TaskController {
     private final TaskService taskService;
     private final ProjectRepository projectRepository;
+    private final ParticipateRepository participateRepository;
 
     @PostMapping("/{project_id}")
     public ResponseEntity<?> createTask(
@@ -156,6 +159,27 @@ public class TaskController {
             return ResponseEntity.ok(taskUpdate);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal Error!");
+        }
+    }
+
+    @DeleteMapping("/unassign/{uid}/{project_id}/{task_id}")
+    public ResponseEntity<?> UnassignTask(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable("uid") String uid,
+            @PathVariable("project_id") String project_id,
+            @PathVariable("task_id") Integer task_id
+    ) {
+        try {
+            String leader =  userDetails.getUsername();
+
+            Optional<User> checkLeader = participateRepository.checkLeader(UUID.fromString(leader), ProjectRole.LEADER);
+            if (checkLeader.isEmpty()) {
+                return ResponseEntity.status(403).body("Forbidden!");
+            }
+            taskService.unassignTask(uid, project_id, task_id);
+            return ResponseEntity.ok("Unassign Task Successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
