@@ -405,8 +405,9 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost/calendar-sync-module",
-      "type": "string"
+      "value": "./",
+      "type": "string",
+      "description": "Use relative path (./) or set to your server URL"
     }
   ]
 }

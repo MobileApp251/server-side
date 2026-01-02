@@ -20,10 +20,10 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
-  - url: http://localhost:8080
-    description: Local development server (PHP built-in server)
-  - url: http://localhost/calendar-sync-module
-    description: Local Apache/Nginx server
+  - url: ./
+    description: Current server (relative path)
+  - url: /calendar-sync-module
+    description: Absolute path from domain root
   - url: https://api.example.com/calendar-sync-module
     description: Production server
 
