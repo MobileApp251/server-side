@@ -8,12 +8,14 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
 @Table(name = "notifications")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -50,6 +52,12 @@ public class Notifications {
     private Project project;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_id")
+    @JoinColumns(
+            value = {
+                    @JoinColumn(name = "project_id",referencedColumnName = "proj_id", insertable = false, updatable = false),
+                    @JoinColumn(name = "task_id", referencedColumnName = "task_id", insertable = false, updatable = false)
+            }
+    )
+
     private Task task;
 }
