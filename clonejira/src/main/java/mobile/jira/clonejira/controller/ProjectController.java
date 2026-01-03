@@ -7,6 +7,7 @@ import java.util.UUID;
 import mobile.jira.clonejira.dto.project.*;
 import mobile.jira.clonejira.entity.User;
 import mobile.jira.clonejira.enums.ProjectRole;
+import mobile.jira.clonejira.repository.NotificationRepository;
 import mobile.jira.clonejira.repository.ParticipateRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -79,11 +80,8 @@ public class ProjectController {
         try {
             String uid = userDetails.getUsername();
 
-            System.out.print("User with id: ");
-            System.out.println(uid);
             List<ProjectParticipantGroupDTO> projects = projectService.getAllMyProjects(uid, page, size, sortBy, sortDir);
-            System.out.print("Project Fetch: ");
-            System.out.println(projects.size());
+
             return ResponseEntity.ok(projects);
         } catch (Exception e) {
             System.out.println(e.getMessage());

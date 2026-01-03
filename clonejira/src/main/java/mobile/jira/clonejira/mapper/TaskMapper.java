@@ -20,8 +20,8 @@ public interface TaskMapper {
 
     @Mapping(source = "id.task_id", target = "task_id")
     @Mapping(source = "id.proj_id", target = "proj_id")
-    @Mapping(target = "createAt", ignore = true)
-    @Mapping(target = "updateAt", ignore = true)
+    @Mapping(target = "createAt")
+    @Mapping(target = "updateAt")
     TaskDTO toDTO(Task task);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

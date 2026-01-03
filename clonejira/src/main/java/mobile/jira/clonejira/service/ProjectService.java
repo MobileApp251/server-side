@@ -1,31 +1,23 @@
 package mobile.jira.clonejira.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import mobile.jira.clonejira.dto.auth.UserDTO;
 import mobile.jira.clonejira.dto.project.*;
-import mobile.jira.clonejira.entity.ProjectMember;
+import mobile.jira.clonejira.entity.*;
+import mobile.jira.clonejira.enums.NotifyType;
+import mobile.jira.clonejira.repository.*;
 import org.apache.coyote.BadRequestException;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import mobile.jira.clonejira.entity.Participate;
-import mobile.jira.clonejira.entity.Project;
-import mobile.jira.clonejira.entity.User;
 import mobile.jira.clonejira.entity.key.ProjectMemberId;
 import mobile.jira.clonejira.enums.ProjectRole;
 import mobile.jira.clonejira.mapper.*;
-import mobile.jira.clonejira.repository.ParticipateRepository;
-import mobile.jira.clonejira.repository.ProjectRepository;
-import mobile.jira.clonejira.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -35,6 +27,8 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ParticipateRepository participateRepository;
     private final UserRepository userRepository;
+    private final ExpoNotiService expoNotiService;
+    private final ExpoNotiRepository expoNotiRepository;
     private final ProjectMapper mapper;
     private final UserMapper userMapper;
 
@@ -71,6 +65,16 @@ public class ProjectService {
         if  (user.isEmpty()) throw new BadRequestException("User not found!");
 
         joinProject(user.get().getUid().toString(), proj_id, "member");
+
+        List<ExpoNotiCode> codeList = expoNotiRepository.findByUser(user.get());
+
+        for (ExpoNotiCode code : codeList) {
+            try {
+                expoNotiService.sendPushNotification(code.getCode(),"Project Adding" , "You are add into project #" + proj_id, NotifyType.ADD_PROJECT, user.get().getUid().toString(),proj_id, null);
+            } catch (Exception e) {
+                continue;
+            }
+        }
     }
 
     public List<ProjectParticipantGroupDTO> getAllMyProjects(String uid, int page, int size, String sortBy, String sortDir) throws BadRequestException {

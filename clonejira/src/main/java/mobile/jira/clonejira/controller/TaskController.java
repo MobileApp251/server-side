@@ -1,6 +1,7 @@
 package mobile.jira.clonejira.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -67,19 +68,21 @@ public class TaskController {
         }
     }
 
+    // Get all my tasks
     @GetMapping()
     public ResponseEntity<?> getAllTasks(
-            @AuthenticationPrincipal UserDetails userDetails
-            ){
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam Map<String, String> reqParam
+    ){
         try {
             String uid = userDetails.getUsername();
-            return ResponseEntity.ok(taskService.getAllTasks(uid));
+            return ResponseEntity.ok(taskService.getAllTasks(uid, reqParam));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(500).body("Internal Error!");
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
+    // get tasks by projects
     @GetMapping("/{project_id}")
     public ResponseEntity<?> getTasksByProject(
         @PathVariable("project_id") String project_id

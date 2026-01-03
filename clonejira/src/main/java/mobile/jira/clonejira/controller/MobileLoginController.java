@@ -2,9 +2,13 @@ package mobile.jira.clonejira.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import mobile.jira.clonejira.dto.auth.LoginDTO;
+import mobile.jira.clonejira.entity.ExpoNotiCode;
 import mobile.jira.clonejira.entity.User;
+import mobile.jira.clonejira.enums.NotifyType;
 import mobile.jira.clonejira.mapper.UserMapper;
+import mobile.jira.clonejira.repository.ExpoNotiRepository;
 import mobile.jira.clonejira.repository.UserRepository;
+import mobile.jira.clonejira.service.ExpoNotiService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +28,7 @@ import mobile.jira.clonejira.service.UserService;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.coyote.BadRequestException;
@@ -39,11 +44,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 @SecurityRequirements(value = {})
 public class MobileLoginController {
     private final UserRepository userRepository;
+    private final ExpoNotiRepository expoNotiRepository;
+
     private final UserMapper userMapper;
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
     private final UserService userService;
+    private final ExpoNotiService expoNotiService;
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -55,6 +63,7 @@ public class MobileLoginController {
         @RequestBody Map<String, String> requestBody
     ) {
         String idGGToken = requestBody.get("token");
+        String noti_token = requestBody.get("noti_token");
 
         try {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
@@ -79,6 +88,16 @@ public class MobileLoginController {
             );
 
             String jwtToken = jwtTokenProvider.generateToken(authentication);
+
+            if (!Objects.equals(null, noti_token)) {
+                Optional<User> userExist = userRepository.findByEmail(email);
+                if (userExist.isPresent()) {
+                    ExpoNotiCode newCode = ExpoNotiCode.builder()
+                            .code(noti_token).user(userExist.get()).build();
+
+                    expoNotiRepository.save(newCode);
+                }
+            }
             
             return ResponseEntity.ok(new AccessTokenDTO(jwtToken));
         } catch (Exception e) {
@@ -116,7 +135,8 @@ public class MobileLoginController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> SignUp(
-        @RequestBody LoginDTO loginDTO
+        @RequestBody LoginDTO loginDTO,
+        @RequestParam("noti_token") String noti_token
     ){
         try {
             Optional<User> userExist = userRepository.findByEmail(loginDTO.getEmail());
@@ -142,6 +162,14 @@ public class MobileLoginController {
             );
 
             String jwtToken = jwtTokenProvider.generateToken(authentication);
+
+            if (!Objects.equals(null, noti_token)) {
+                ExpoNotiCode newCode = ExpoNotiCode.builder()
+                        .code(noti_token).user(userResp).build();
+
+                expoNotiRepository.save(newCode);
+                expoNotiService.sendPushNotification(newCode.getCode(), "New User", "Welcome to CloneJira!", NotifyType.SYSTEM, userResp.getUid().toString(), null, null);
+            }
 
             return ResponseEntity.ok(new AccessTokenDTO(jwtToken));
         } catch (Exception e) {

@@ -4,8 +4,10 @@ import mobile.jira.clonejira.entity.Assign;
 import mobile.jira.clonejira.entity.Task;
 import mobile.jira.clonejira.entity.key.ProjectTaskId;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -43,10 +45,14 @@ public interface TaskRepository extends JpaRepository<Task, ProjectTaskId> {
     @Query(
             "select t, a.assignee from Task t " +
             "join Assign a on a.task = t " +
-            "where t.id.proj_id = :project_id and t.id.task_id = :task_id"
+            "where t.id.proj_id = :project_id and t.id.task_id = :task_id "
     )
     List<Object[]> findTaskByIdWithAssignee(@Param("project_id") String project_id, @Param("task_id") Integer task_id);
 
-    @Query("select a.task from Assign a where a.assignee.uid = :uid")
-    List<Task> getAllTasksByUserId(@Param("uid") UUID uid);
+    @Query(
+            "select t from Task t join Assign a on a.task = t where a.assignee.uid = :uid " +
+            "and (:startDate is null or t.endAt >= :startDate) " +
+            "and (:endDate is null or t.endAt <= :endDate) "
+    )
+    List<Task> getAllTasksByUserId(@Param("uid") UUID uid, Pageable pageable, @Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
 }

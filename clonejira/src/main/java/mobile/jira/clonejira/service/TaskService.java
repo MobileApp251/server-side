@@ -1,13 +1,17 @@
 package mobile.jira.clonejira.service;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import mobile.jira.clonejira.dto.auth.UserDTO;
 import mobile.jira.clonejira.dto.task.*;
+import mobile.jira.clonejira.enums.TaskPriority;
 import mobile.jira.clonejira.repository.ProjectRepository;
 import org.apache.coyote.BadRequestException;
-import org.springframework.data.crossstore.ChangeSetPersister.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -58,8 +62,32 @@ public class TaskService {
         assignRepository.deleteById(new TaskAssigneeId(uid, proj_id, task_id));
     }
 
-    public List<TaskDTO> getAllTasks(String uid){
-        List<Task> tasks = taskRepository.getAllTasksByUserId(UUID.fromString(uid));
+    private Integer PriorityMapping(TaskPriority priority) {
+        return switch (priority) {
+            case TaskPriority.HIGH -> 1;
+            case TaskPriority.MEDIUM -> 2;
+            default -> 3;
+        };
+    }
+
+    public List<TaskDTO> getAllTasks(String uid, Map<String, String> reqParam){
+        List<String> validSortFields = List.of("startAt", "endAt", "Priority");
+        String sortDir = reqParam.get("sortDir") != null ? reqParam.get("sortDir") : "desc";
+        String sortBy = reqParam.get("sortBy") != null && validSortFields.contains(reqParam.get("sortBy")) ? reqParam.get("sortBy") : "startAt";
+        Sort sort = !Objects.equals(sortBy, "Priority") ?
+                (sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending() ) :
+                (sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by("startAt").ascending() : Sort.by("startAt").descending());
+        int page = reqParam.get("page") != null ? Integer.parseInt(reqParam.get("page")) : 0;
+        int size =  reqParam.get("limit") != null ? Integer.parseInt(reqParam.get("limit")) : 10;
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Instant startDate = reqParam.get("startDate") != null ? Instant.parse(reqParam.get("startDate")) : null;
+        Instant endDate = reqParam.get("endDate") != null ? Instant.parse(reqParam.get("endDate")) : null;
+
+
+        List<Task> tasks = taskRepository.getAllTasksByUserId(UUID.fromString(uid), pageable, startDate, endDate);
+        System.out.println(!tasks.isEmpty() ? "List tasks" : "No tasks found");
 
         return tasks.stream()
                 .map(taskMapper::toDTO)
