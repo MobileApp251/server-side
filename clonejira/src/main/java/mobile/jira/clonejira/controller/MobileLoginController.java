@@ -136,7 +136,7 @@ public class MobileLoginController {
     @PostMapping("/sign-up")
     public ResponseEntity<?> SignUp(
         @RequestBody LoginDTO loginDTO,
-        @RequestParam("noti_token") String noti_token
+        @RequestParam(value = "noti_token", defaultValue = "") String noti_token
     ){
         try {
             Optional<User> userExist = userRepository.findByEmail(loginDTO.getEmail());
@@ -163,12 +163,16 @@ public class MobileLoginController {
 
             String jwtToken = jwtTokenProvider.generateToken(authentication);
 
-            if (!Objects.equals(null, noti_token)) {
-                ExpoNotiCode newCode = ExpoNotiCode.builder()
-                        .code(noti_token).user(userResp).build();
+            if (!Objects.equals("", noti_token)) {
+                try {
+                    ExpoNotiCode newCode = ExpoNotiCode.builder()
+                            .code(noti_token).user(userResp).build();
 
-                expoNotiRepository.save(newCode);
-                expoNotiService.sendPushNotification(newCode.getCode(), "New User", "Welcome to CloneJira!", NotifyType.SYSTEM, userResp.getUid().toString(), null, null);
+                    expoNotiRepository.save(newCode);
+                    expoNotiService.sendPushNotification(newCode.getCode(), "New User", "Welcome to CloneJira!", NotifyType.SYSTEM, userResp.getUid().toString(), null, null);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
             }
 
             return ResponseEntity.ok(new AccessTokenDTO(jwtToken));
