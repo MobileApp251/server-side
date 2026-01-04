@@ -6,6 +6,11 @@ on:
     paths:
       - 'clonejira/**' # Chỉ chạy khi có thay đổi trong thư mục này
       - '.github/workflows/spring-service.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'clonejira/**' # Chỉ chạy khi có thay đổi trong thư mục này
+      - '.github/workflows/spring-service.yml'
 
 jobs:
   build-and-test:
