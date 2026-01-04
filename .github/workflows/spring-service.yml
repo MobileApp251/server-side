@@ -1,0 +1,33 @@
+name: Spring Boot CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'clonejira/**' # Chỉ chạy khi có thay đổi trong thư mục này
+      - '.github/workflows/spring-service.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./clonejira # Chuyển ngữ cảnh vào thư mục con
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven # Tự động cache thư viện Maven để chạy nhanh hơn
+
+      - name: Build and Test with Maven
+        run: mvn clean verify # Chạy test, nếu fail sẽ dừng tại đây
+
+      # Nếu test OK, gọi Webhook để Render tự deploy
+      - name: Trigger Render Deploy
+        if: success()
+        run: curl -X POST ${{ secrets.RENDER_SPRING_HOOK }}
