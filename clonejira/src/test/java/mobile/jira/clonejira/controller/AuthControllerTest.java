@@ -4,9 +4,13 @@ import mobile.jira.clonejira.dto.auth.AccessTokenDTO;
 import mobile.jira.clonejira.dto.auth.LoginDTO;
 import mobile.jira.clonejira.entity.User;
 import mobile.jira.clonejira.mapper.UserMapper;
+import mobile.jira.clonejira.repository.ExpoNotiRepository;
+import mobile.jira.clonejira.repository.NotificationRepository;
 import mobile.jira.clonejira.repository.UserRepository;
 import mobile.jira.clonejira.security.JwtTokenProvider;
+import mobile.jira.clonejira.service.ExpoNotiService;
 import mobile.jira.clonejira.service.JwtService;
+import mobile.jira.clonejira.service.NotificationService;
 import mobile.jira.clonejira.service.UserService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +48,12 @@ public class AuthControllerTest {
     private UserRepository userRepository;
 
     @MockitoBean
+    private ExpoNotiRepository expoNotiRepository;
+
+    @MockitoBean
+    private NotificationRepository notificationRepository;
+
+    @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
 
     @MockitoBean
@@ -54,6 +64,12 @@ public class AuthControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private NotificationService notificationService;
+
+    @MockitoBean
+    private ExpoNotiService expoNotiService;
 
     @MockitoBean
     private JpaMetamodelMappingContext jpaMetamodelMappingContext;

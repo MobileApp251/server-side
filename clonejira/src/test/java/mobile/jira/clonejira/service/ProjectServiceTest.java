@@ -20,6 +20,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -36,6 +37,9 @@ public class ProjectServiceTest {
 
     @InjectMocks
     private ProjectService projectService;
+
+    @Mock
+    private NotificationService notificationService;
 
     @Mock
     private ProjectMapper projectMapper;

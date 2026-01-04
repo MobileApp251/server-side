@@ -1,8 +1,14 @@
 package mobile.jira.clonejira.controller;
 
 import mobile.jira.clonejira.dto.auth.UserDTO;
+import mobile.jira.clonejira.mapper.NotificationMapper;
+import mobile.jira.clonejira.repository.ExpoNotiRepository;
+import mobile.jira.clonejira.repository.NotificationRepository;
+import mobile.jira.clonejira.repository.UserRepository;
 import mobile.jira.clonejira.security.JwtTokenProvider;
+import mobile.jira.clonejira.service.ExpoNotiService;
 import mobile.jira.clonejira.service.JwtService;
+import mobile.jira.clonejira.service.NotificationService;
 import mobile.jira.clonejira.service.UserService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
@@ -42,8 +48,26 @@ public class UserControllerTest {
     @MockitoBean
     private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
+    @MockitoBean
+    private ExpoNotiRepository expoNotiRepository;
+
+    @MockitoBean
+    private ExpoNotiService expoNotiService;
+
+    @MockitoBean
+    private NotificationService notificationService;
+
+    @MockitoBean
+    private NotificationRepository notificationRepository;
+
+    @MockitoBean
+    private UserRepository userRepository;
+
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private NotificationMapper notificationMapper;
 
     @Test
     public void testGetUserDetails() throws Exception {
