@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
         @Tag("api"),
         @Tag("unit")
 })
-public class AuthControllerTest {
+public class MobileLoginControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
