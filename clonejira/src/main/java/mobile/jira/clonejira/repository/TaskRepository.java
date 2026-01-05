@@ -55,4 +55,6 @@ public interface TaskRepository extends JpaRepository<Task, ProjectTaskId> {
             "and (:endDate is null or t.endAt <= :endDate) "
     )
     List<Task> getAllTasksByUserId(@Param("uid") UUID uid, Pageable pageable, @Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
+
+//    List<Task> findAllDueTasks();
 }
