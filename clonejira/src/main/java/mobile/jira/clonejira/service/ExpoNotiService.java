@@ -56,7 +56,7 @@ public class ExpoNotiService {
             Optional<Project> project = projectRepository.findById(UUID.fromString(project_id));
             Optional<Task> task = taskRepository.findById(new ProjectTaskId(project_id, task_id));
             Notifications  notifications = Notifications.builder()
-                    .content(message).title(title).createdAt(now).notifyAt(now).notifyType(notifyType)
+                    .content(message).title(title).createAt(now).notifyAt(now).notifyType(notifyType)
                     .user(user.orElse(null)).task(task.orElse(null)).project(project.orElse(null)).build();
 
             notificationRepository.save(notifications);

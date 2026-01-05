@@ -34,7 +34,7 @@ public class Notifications {
 
     @CreatedDate
     @Column(nullable = false, name = "createAt")
-    private Instant createdAt;
+    private Instant createAt;
 
     @Column(nullable = false, name = "notifyAt")
     private Instant notifyAt;
