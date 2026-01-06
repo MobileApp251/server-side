@@ -57,9 +57,10 @@ public interface TaskRepository extends JpaRepository<Task, ProjectTaskId> {
     List<Task> getAllTasksByUserId(@Param("uid") UUID uid, Pageable pageable, @Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
 
     @Query(
-            "select t from Task t " +
+            "select t.id, a.assignee.uid, e.code from Task t "+
+            "join Assign a on t = a.task join ExpoNotiCode e on a.assignee = e.user " +
             "where t.endAt >= :now and t.endAt <= :next " +
             "order by t.endAt asc"
     )
-    List<Task> findAllDueTasks(@Param("now") Instant now, @Param("next") Instant next);
+    List<Object[]> findAllDueTasks(@Param("now") Instant now, @Param("next") Instant next);
 }
