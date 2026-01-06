@@ -16,11 +16,14 @@ import mobile.jira.clonejira.entity.Project;
 
 public interface ProjectRepository extends JpaRepository<Project, UUID> {
     @Query(
-        "SELECT prj, p.member FROM Project prj " +
+        "SELECT prj FROM Project prj " +
         "JOIN Participate p ON p.project = prj" +
         " WHERE p.member.uid = :uid"
     )
-    Page<Object[]> findAllMyProjects(@Param("uid") UUID uid, Pageable pageable);
+    Page<Project> findAllMyProjects(@Param("uid") UUID uid, Pageable pageable);
+
+    @Query("SELECT p, u.member, u.role FROM Project p JOIN p.members u WHERE p IN :projects")
+    List<Object[]> findAllMembersByProjects(@Param("projects") List<Project> projects);
 
     @Query(
             "select new ProjectMember(p.member.uid, p.member.email, p.member.username, p.role) from Participate p where p.project.proj_id = :proj_id"

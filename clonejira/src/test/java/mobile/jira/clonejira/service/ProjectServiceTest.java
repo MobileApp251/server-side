@@ -22,6 +22,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -205,38 +206,62 @@ public class ProjectServiceTest {
 
     @Test
     void testGetAllMyProjects_Success() throws BadRequestException {
-        // Input
+        // 1. Setup Input Data
         String uid = UUID.randomUUID().toString();
+
+        // Tạo User Entity
         User user = new User();
         user.setUid(UUID.fromString(uid));
 
+        // Tạo Project Entity
         Project projectEntity = new Project();
         projectEntity.setProj_id(UUID.randomUUID());
+        projectEntity.setProj_name("Test Project");
 
-        // Mocking Object[] return from Repository (Project, User)
-        Object[] row = new Object[]{projectEntity, user};
-        List<Object[]> queryResult = List.<Object[]>of(row);
-
+        // Tạo DTO tương ứng để mock kết quả mapper
         ProjectDTO projectDTO = new ProjectDTO();
         projectDTO.setProj_id(projectEntity.getProj_id().toString());
+        projectDTO.setProj_name("Test Project");
 
         UserDTO userDTO = new UserDTO();
         userDTO.setUid(uid);
 
-        when(userRepository.findById(UUID.fromString(uid))).thenReturn(Optional.of(user));
-        when(projectRepository.findAllMyProjects(eq(UUID.fromString(uid)), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(queryResult)); // Mock Page return
+        // 2. Mocking Repositories & Mappers
 
+        // 2.1. Mock UserRepository
+        when(userRepository.findById(UUID.fromString(uid))).thenReturn(Optional.of(user));
+
+        // 2.2. Mock Query 1: Lấy danh sách Project (Phân trang)
+        // QUAN TRỌNG: Chỉ trả về List<Project>, không phải Object[]
+        List<Project> projectList = List.of(projectEntity);
+        Page<Project> pageProject = new PageImpl<>(projectList);
+
+        when(projectRepository.findAllMyProjects(eq(UUID.fromString(uid)), any(Pageable.class)))
+                .thenReturn(pageProject);
+
+        // 2.3. Mock Query 2: Lấy chi tiết thành viên (List<Object[]>)
+        // Row giả lập kết quả JOIN: index 0 là Project, index 1 là User
+        Object[] row = new Object[]{projectEntity, user};
+        List<Object[]> participantsData = List.<Object[]>of(row);
+
+        when(projectRepository.findAllMembersByProjects(projectList)) // Truyền đúng list project từ query 1
+                .thenReturn(participantsData);
+
+        // 2.4. Mock Mappers
+        // Lưu ý: Đảm bảo biến mapper trong test khớp với tên biến trong Service (ở đây mình dùng projectMapper theo code mẫu cũ của bạn)
         when(projectMapper.toDTO(projectEntity)).thenReturn(projectDTO);
         when(userMapper.toDTO(user)).thenReturn(userDTO);
 
-        // Execute
+        // 3. Execute Service
         List<ProjectParticipantGroupDTO> result = projectService.getAllMyProjects(uid, 0, 10, "proj_name", "asc");
 
-        // Verify
+        // 4. Verify
         assertNotNull(result);
-        assertEquals(1, result.size());
+        assertEquals(1, result.size()); // Kiểm tra số lượng Group Project
+
+        // Kiểm tra dữ liệu project
         assertEquals(projectDTO.getProj_id(), result.get(0).getProject().getProj_id());
+
         System.out.println("Pass GetAllMyProjects_Success");
     }
 

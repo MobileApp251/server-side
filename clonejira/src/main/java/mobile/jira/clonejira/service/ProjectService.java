@@ -88,23 +88,26 @@ public class ProjectService {
 
         if (user.isEmpty()) throw new BadRequestException("User not found!");
 
-        List<Object[]> listProjects = projectRepository
+        List<Project> listProjects = projectRepository
             .findAllMyProjects(UUID.fromString(uid), pageable).stream().toList();
 
-        List<ProjectParticipantDTO> projectsWithParticipants = listProjects.stream()
+        if (listProjects.isEmpty()) return Collections.emptyList();
+
+        List<Object[]> participants = projectRepository.findAllMembersByProjects(listProjects);
+
+        List<ProjectParticipantGroupDTO> pRes = participants.stream()
                 .map(item -> {
-                    ProjectDTO dto = mapper.toDTO((Project) item[0]);
-                    UserDTO userDTO = userMapper.toDTO((User) item[1]);
-
-                    return new ProjectParticipantDTO(dto, userDTO);
-                }).toList();
-
-        List<ProjectParticipantGroupDTO> pRes = projectsWithParticipants.stream()
+                    Project p = (Project) item[0];
+                    User u = (User) item[1];
+                    return new ProjectParticipantDTO(mapper.toDTO(p), userMapper.toDTO(u));
+                })
                 .collect(Collectors.groupingBy(
-                        item -> item.getProject(),
-                        Collectors.mapping(ProjectParticipantDTO::getMember,Collectors.toList())
-                )).entrySet().stream()
-                .map(item -> new ProjectParticipantGroupDTO(item.getKey(), item.getValue()))
+                        ProjectParticipantDTO::getProject, // Group theo ProjectDTO
+                        LinkedHashMap::new, // Dùng LinkedHashMap để giữ thứ tự Project như lúc query
+                        Collectors.mapping(ProjectParticipantDTO::getMember, Collectors.toList())
+                ))
+                .entrySet().stream()
+                .map(entry -> new ProjectParticipantGroupDTO(entry.getKey(), entry.getValue()))
                 .toList();
 
         return pRes;
