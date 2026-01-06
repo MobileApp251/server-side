@@ -11,4 +11,6 @@ public class LoginDTO {
 
     @NotBlank(message = "Email is required!")
     private String password;
+
+    private String noti_token;
 }

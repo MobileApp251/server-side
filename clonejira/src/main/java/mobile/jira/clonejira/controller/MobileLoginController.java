@@ -135,8 +135,7 @@ public class MobileLoginController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> SignUp(
-        @RequestBody LoginDTO loginDTO,
-        @RequestParam(value = "noti_token", defaultValue = "") String noti_token
+        @RequestBody LoginDTO loginDTO
     ){
         try {
             Optional<User> userExist = userRepository.findByEmail(loginDTO.getEmail());
@@ -163,10 +162,10 @@ public class MobileLoginController {
 
             String jwtToken = jwtTokenProvider.generateToken(authentication);
 
-            if (!Objects.equals("", noti_token)) {
+            if (!Objects.equals("", loginDTO.getNoti_token())) {
                 try {
                     ExpoNotiCode newCode = ExpoNotiCode.builder()
-                            .code(noti_token).user(userResp).build();
+                            .code(loginDTO.getNoti_token()).user(userResp).build();
 
                     expoNotiRepository.save(newCode);
                     expoNotiService.sendPushNotification(newCode.getCode(), "New User", "Welcome to CloneJira!", NotifyType.SYSTEM, userResp.getUid().toString(), null, null);
@@ -196,6 +195,7 @@ public class MobileLoginController {
             }
 
             User  userRes = userExist.get();
+            System.out.println("User noti token: " + userRes.getUid().toString());
 
             UsernamePasswordAuthenticationToken
                     authentication = new UsernamePasswordAuthenticationToken(
@@ -203,7 +203,13 @@ public class MobileLoginController {
             );
 
             String jwtToken = jwtTokenProvider.generateToken(authentication);
+            if (!Objects.equals(null, loginDTO.getNoti_token())) {
+                ExpoNotiCode newCode = ExpoNotiCode.builder()
+                        .code(loginDTO.getNoti_token()).user(userExist.get()).build();
 
+                expoNotiRepository.save(newCode);
+                expoNotiService.sendPushNotification(newCode.getCode(), "Current User", "Welcome back to CloneJira!", NotifyType.SYSTEM, userRes.getUid().toString(), null, null);
+            }
             return ResponseEntity.ok(new AccessTokenDTO(jwtToken));
         } catch (Exception e) {
             return ResponseEntity.status(400).body("Sign in failed!");

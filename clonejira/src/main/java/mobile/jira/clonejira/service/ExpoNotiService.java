@@ -53,8 +53,8 @@ public class ExpoNotiService {
             ResponseEntity<String> response = restTemplate.postForEntity(EXPO_PUSH_URL, entity, String.class);
             Instant now = Instant.now();
             Optional<User> user = userRepository.findById(UUID.fromString(uid));
-            Optional<Project> project = projectRepository.findById(UUID.fromString(project_id));
-            Optional<Task> task = taskRepository.findById(new ProjectTaskId(project_id, task_id));
+            Optional<Project> project = project_id !=null ? projectRepository.findById(UUID.fromString(project_id)) : Optional.empty();
+            Optional<Task> task = task_id != null && project_id != null ? taskRepository.findById(new ProjectTaskId(project_id, task_id)) :  Optional.empty();
             Notifications  notifications = Notifications.builder()
                     .content(message).title(title).createAt(now).notifyAt(now).notifyType(notifyType)
                     .user(user.orElse(null)).task(task.orElse(null)).project(project.orElse(null)).build();
