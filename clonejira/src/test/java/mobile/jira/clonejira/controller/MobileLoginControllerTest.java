@@ -134,7 +134,11 @@ public class MobileLoginControllerTest {
 
     @Test
     void testSignUp_WithNotificationToken() throws Exception {
-        String notiToken = "test-noti-token";
+        // 1. Chuẩn bị dữ liệu đầu vào
+        LoginDTO loginDTO = new LoginDTO();
+        loginDTO.setEmail("test@gmail.com");
+        loginDTO.setPassword("password123");
+        loginDTO.setNoti_token("test-noti-token"); // <-- QUAN TRỌNG: Set token vào đây
 
         when(userRepository.findByEmail(loginDTO.getEmail())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(loginDTO.getPassword())).thenReturn("encoded_password");
@@ -143,14 +147,13 @@ public class MobileLoginControllerTest {
 
         mockMvc.perform(
                 MockMvcRequestBuilders.post("/auth/sign-up")
-                        .param("noti_token", notiToken)
                         .contentType(String.valueOf(MediaType.APPLICATION_JSON))
                         .content(objectMapper.writeValueAsString(loginDTO))
         ).andExpect(MockMvcResultMatchers.status().isOk());
 
         // Verify logic lưu notification token
         verify(expoNotiRepository).save(any(ExpoNotiCode.class));
-        verify(expoNotiService).sendPushNotification(eq(notiToken), anyString(), anyString(), any(), anyString(), any(), any());
+        verify(expoNotiService).sendPushNotification(eq("test-noti-token"), anyString(), anyString(), any(), anyString(), any(), any());
 
         System.out.println("Pass Sign up with Noti Token");
     }
