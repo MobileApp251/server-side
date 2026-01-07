@@ -73,6 +73,17 @@ The documentation will automatically open at `http://localhost:8080` and you can
 ### Statistics
 - `GET /api/statistics.php` - Get comprehensive statistics
 
+### Google Calendar Sync
+- `GET /api/google-sync.php?action=setup` - Setup instructions
+- `GET /api/google-sync.php?action=status` - Check sync configuration status
+- `GET /api/google-sync.php?action=auth` - Get OAuth authorization URL
+- `GET /api/google-sync.php?action=callback&code={code}` - Handle OAuth callback
+- `GET /api/google-sync.php?action=sync&start_date={date}&end_date={date}` - Sync tasks to Google Calendar
+- `GET /api/google-sync.php?action=sync_task&task_id={id}&proj_id={id}` - Sync single task
+- `GET /api/google-sync.php?action=list&start_date={date}&end_date={date}` - List Google Calendar events
+
+**📖 For detailed Google Calendar setup instructions, see [GOOGLE-CALENDAR-SETUP.md](GOOGLE-CALENDAR-SETUP.md)**
+
 ## 🔑 Authentication
 
 Currently, the API does not enforce authentication. However, security schemes are defined in the Swagger documentation for future implementation:

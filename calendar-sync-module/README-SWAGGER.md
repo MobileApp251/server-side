@@ -141,6 +141,17 @@ curl "http://localhost:8080/api/calendar-demo.php?start_date=2025-01-01&end_date
 ### 📊 Statistics
 - `GET /api/statistics.php` - Get stats
 
+### 🗓️ Google Calendar Sync
+- `GET /api/google-sync.php?action=setup` - Setup instructions
+- `GET /api/google-sync.php?action=status` - Check sync status
+- `GET /api/google-sync.php?action=auth` - Get authorization URL
+- `GET /api/google-sync.php?action=callback&code=X` - OAuth callback
+- `GET /api/google-sync.php?action=sync&start_date=Y-m-d&end_date=Y-m-d` - Sync tasks to Google Calendar
+- `GET /api/google-sync.php?action=sync_task&task_id=X&proj_id=Y` - Sync single task
+- `GET /api/google-sync.php?action=list&start_date=Y-m-d&end_date=Y-m-d` - List Google Calendar events
+
+📖 **Setup Guide:** See `GOOGLE-CALENDAR-SETUP.md` for detailed instructions
+
 ---
 
 ## 💡 Pro Tips
@@ -163,3 +174,5 @@ curl "http://localhost:8080/api/calendar-demo.php?start_date=2025-01-01&end_date
 ---
 
 **🚀 Start Now:** Run `START-SERVER.bat` and open http://localhost:8080
+Lệnh chạy swagger php -S localhost:8080
+Lệnh test tự động module php composer test-all
