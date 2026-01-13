@@ -3,6 +3,7 @@ package mobile.jira.clonejira.repository;
 import mobile.jira.clonejira.entity.Assign;
 import mobile.jira.clonejira.entity.Task;
 import mobile.jira.clonejira.entity.key.ProjectTaskId;
+import mobile.jira.clonejira.enums.TaskStatus;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -59,8 +60,8 @@ public interface TaskRepository extends JpaRepository<Task, ProjectTaskId> {
     @Query(
             "select t.id, a.assignee.uid, e.code from Task t "+
             "join Assign a on t = a.task join ExpoNotiCode e on a.assignee = e.user " +
-            "where t.endAt >= :now and t.endAt <= :next " +
-            "order by t.endAt asc"
+            "where t.endAt >= :now and t.endAt <= :next and t.status != :done and t.status != :close " +
+            " order by t.endAt asc"
     )
-    List<Object[]> findAllDueTasks(@Param("now") Instant now, @Param("next") Instant next);
+    List<Object[]> findAllDueTasks(@Param("now") Instant now, @Param("next") Instant next, @Param("done") TaskStatus done, @Param("close")  TaskStatus close);
 }

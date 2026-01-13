@@ -6,7 +6,7 @@ public enum NotifyType {
     ADD_PROJECT("add_project"),
     SYSTEM("system"),
     OTHER("other"),
-    ASSIGN_TASK("assign_task"),
+    ASSIGN_TASK("asssign_task"),
     UPCOMING_TASK("upcoming_task"),
     DUE_TASK("due_task"),
     ISSUE("issue");

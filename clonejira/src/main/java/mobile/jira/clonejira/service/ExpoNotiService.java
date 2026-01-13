@@ -17,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.scheduling.annotation.Async;
+import java.util.concurrent.CompletableFuture;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -32,6 +34,7 @@ public class ExpoNotiService {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
 
+    @Async("taskExecutor")
     public void sendPushNotification(String expoToken, String title, String message, NotifyType notifyType, String uid, String project_id, Integer task_id) {
         RestTemplate restTemplate = new RestTemplate();
 
