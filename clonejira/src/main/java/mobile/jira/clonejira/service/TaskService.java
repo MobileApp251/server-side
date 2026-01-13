@@ -6,8 +6,9 @@ import java.util.stream.Collectors;
 
 import mobile.jira.clonejira.dto.auth.UserDTO;
 import mobile.jira.clonejira.dto.task.*;
+import mobile.jira.clonejira.enums.NotifyType;
 import mobile.jira.clonejira.enums.TaskPriority;
-import mobile.jira.clonejira.repository.ProjectRepository;
+import mobile.jira.clonejira.repository.*;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,19 +20,21 @@ import mobile.jira.clonejira.entity.Assign;
 import mobile.jira.clonejira.entity.*;
 import mobile.jira.clonejira.entity.key.ProjectTaskId;
 import mobile.jira.clonejira.entity.key.TaskAssigneeId;
-import mobile.jira.clonejira.repository.AssignRepository;
-import mobile.jira.clonejira.repository.TaskRepository;
 import mobile.jira.clonejira.mapper.*;
 
 @Service
 @RequiredArgsConstructor
 public class TaskService {
     private final NotificationService notificationService;
+    private final ExpoNotiService expoNotiService;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final AssignRepository assignRepository;
+    private final UserRepository userRepository;
+    private final ExpoNotiRepository expoNotiRepository;
     private final TaskMapper taskMapper;
     private final UserMapper userMapper;
+
 
     public TaskDTO createTask(String project_id, TaskCreateDTO taskDTO) {
         TaskDTO tdto = new TaskDTO();
@@ -54,7 +57,19 @@ public class TaskService {
         TaskAssigneeId id = new TaskAssigneeId(uid, proj_id, task_id);
         Assign newAssignment = new Assign();
         newAssignment.setId(id);
-        notificationService.sendNotification(uid, "Task #" + proj_id + "-" + task_id.toString() + " is assigned to you!");
+
+        Optional<User> user =  userRepository.findById(UUID.fromString(uid));
+        if (user.isPresent()){
+            List<ExpoNotiCode> codeList = expoNotiRepository.findByUser(user.get());
+            for (ExpoNotiCode code : codeList) {
+                try {
+                    expoNotiService.sendPushNotification(code.getCode(),"Task Assignment" , "You are assigned to Task#" + proj_id + "_" + task_id, NotifyType.ASSIGN_TASK, user.get().getUid().toString(),proj_id, task_id);
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+        }
+
         assignRepository.save(newAssignment);
     }
 
