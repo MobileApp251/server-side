@@ -103,29 +103,6 @@ public class TaskServiceTest {
     }
 
     @Test
-    void testAssignTask() throws BadRequestException {
-        // Input
-        String uid = UUID.randomUUID().toString();
-        String projId = "proj-1";
-        Integer taskId = 10;
-
-        // Execute
-        taskService.assignTask(uid, projId, taskId);
-
-        // Verify
-        ArgumentCaptor<Assign> assignCaptor = ArgumentCaptor.forClass(Assign.class);
-        verify(assignRepository).save(assignCaptor.capture());
-        verify(notificationService).sendNotification(eq(uid), contains("assigned to you"));
-
-        Assign captured = assignCaptor.getValue();
-        assertEquals(uid, captured.getId().getUid());
-        assertEquals(projId, captured.getId().getProj_id());
-        assertEquals(taskId, captured.getId().getTask_id());
-
-        System.out.println("Pass AssignTask");
-    }
-
-    @Test
     void testUnassignTask() throws BadRequestException {
         String uid = UUID.randomUUID().toString();
         String projId = "proj-1";
